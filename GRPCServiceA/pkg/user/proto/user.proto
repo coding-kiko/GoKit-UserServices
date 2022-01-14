@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option go_package = "coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/proto";
+
+package proto;
+
+// grpc service interface definition
+service UserServices {
+    rpc GetUser(GetUserReq) returns (GetUserResp) {}
+    rpc CreateUser(CreateUserReq) returns (CreateUserResp) {}
+    // other methods to come...
+}
+
+message GetUserReq {
+    string id = 1;
+}
+
+message GetUserResp {
+    string id = 1;
+    string name = 2;
+    int64 age = 3;
+    string nationality = 4;
+    string job = 5;
+    string created = 6;
+    string email = 7;
+    Status error = 8;
+}
+
+message CreateUserReq {
+    string name = 1;
+    int64 age = 2;
+    string pwd = 3;
+    string nationality = 4;
+    string job = 5;
+    string email = 6;
+}
+
+message CreateUserResp {
+    string id = 1;
+    string created = 2;
+    Status error = 3;
+}
+
+message Status {
+    int32 code = 1;
+    string message = 2;
+}
