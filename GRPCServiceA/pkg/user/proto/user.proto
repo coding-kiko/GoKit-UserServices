@@ -45,3 +45,12 @@ message Status {
     int32 code = 1;
     string message = 2;
 }
+
+message DeleteUserReq {
+    string id = 1;
+}
+
+message DeleteUserResp {
+    string deleted = 1;
+    Status error = 2;
+}
