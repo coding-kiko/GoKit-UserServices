@@ -11,6 +11,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+const (
+	grpcDial  = "localhost:50000"
+	httpServe = "127.0.0.1:8000"
+)
+
 func main() {
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(os.Stdout)
@@ -19,7 +24,7 @@ func main() {
 	logger = log.With(logger, "service", "HTTPService")
 
 	// grpc client connection
-	conn, err := grpc.Dial("localhost:50000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(grpcDial, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic("Unable to dial Grpc")
 	}
@@ -31,7 +36,7 @@ func main() {
 	muxHandler := user.NewMuxApi(epts, logger)
 	srv := &http.Server{
 		Handler: muxHandler,
-		Addr:    "127.0.0.1:8000",
+		Addr:    httpServe,
 	}
 	level.Info(logger).Log("msg", "Http Server started and listening")
 	srv.ListenAndServe()

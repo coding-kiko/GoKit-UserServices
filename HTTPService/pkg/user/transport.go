@@ -12,6 +12,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var GetUserRoute = "/User/{Id}"
+var CreateUserRoute = "/User"
+
 func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 	// options to support error control
 	options := []kitHttp.ServerOption{
@@ -20,7 +23,7 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 	}
 	r := mux.NewRouter()
 	// GetUser method handler
-	r.Methods("GET").Path("/api/users/{Id}").Handler(
+	r.Methods("GET").Path(GetUserRoute).Handler(
 		kitHttp.NewServer(
 			endpoints.GetUser,
 			decodeGetUser,
@@ -29,7 +32,7 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 		),
 	)
 	// CreateUser method handler
-	r.Methods("POST").Path("/api/users").Handler(
+	r.Methods("POST").Path(CreateUserRoute).Handler(
 		kitHttp.NewServer(
 			endpoints.CreateUser,
 			decodeCreateUser,

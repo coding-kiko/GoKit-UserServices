@@ -6,7 +6,6 @@ import (
 	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/entities"
 	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
 	"github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/user/proto"
-	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 )
 
@@ -16,7 +15,7 @@ type gRPCServer struct {
 	proto.UnimplementedUserServicesServer
 }
 
-func NewGRPCServer(endpoints Endpoints, logger log.Logger) proto.UserServicesServer {
+func NewGRPCServer(endpoints Endpoints) proto.UserServicesServer {
 	return &gRPCServer{
 		getUser: gt.NewServer(
 			endpoints.GetUser,

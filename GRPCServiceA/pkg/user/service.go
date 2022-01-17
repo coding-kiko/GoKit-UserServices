@@ -18,6 +18,11 @@ type Service interface {
 	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
 }
 
+type Repository interface {
+	GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp, error)
+	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
+}
+
 func NewService(logger log.Logger, repository Repository) Service {
 	return &service{
 		logger: logger,
