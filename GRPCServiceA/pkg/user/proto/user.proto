@@ -8,6 +8,7 @@ package proto;
 service UserServices {
     rpc GetUser(GetUserReq) returns (GetUserResp) {}
     rpc CreateUser(CreateUserReq) returns (CreateUserResp) {}
+    rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {}
     // other methods to come...
 }
 
