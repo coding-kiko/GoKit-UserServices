@@ -17,11 +17,6 @@ type repo struct {
 	logger log.Logger
 }
 
-type Repository interface {
-	GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp, error)
-	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
-}
-
 func NewRepo(logger log.Logger, db *sql.DB) *repo {
 	return &repo{
 		db:     db,

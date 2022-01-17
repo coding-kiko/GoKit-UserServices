@@ -18,17 +18,6 @@ func HashPwd(text string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func IsEmail(s string) bool {
-	return strings.Contains(s, "@")
-}
-
 func NewId() string {
 	return uuid.New().String()
-}
-
-func GetQuery(s string) string {
-	if IsEmail(s) {
-		return GetQueryByEmail
-	}
-	return GetQueryById
 }

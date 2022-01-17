@@ -14,6 +14,12 @@ import (
 	"google.golang.org/grpc"
 )
 
+// this is temporary while I dont implement env vars
+const (
+	dataSourceName = "root:@(127.0.0.1:3306)/Users"
+	grpcPort       = ":50000"
+)
+
 func main() {
 	var logger log.Logger
 	logger = log.NewLogfmtLogger(os.Stdout)
@@ -22,7 +28,7 @@ func main() {
 	logger = log.With(logger, "service", "gRPCServiceA")
 
 	var db *sql.DB
-	db, err := sql.Open("mysql", "root:@(127.0.0.1:3306)/Users")
+	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -30,9 +36,9 @@ func main() {
 	repo := user.NewRepo(logger, db)
 	svc := user.NewService(logger, repo)
 	epts := user.MakeEndpoints(svc)
-	grpcServer := user.NewGRPCServer(epts, logger)
+	grpcServer := user.NewGRPCServer(epts)
 
-	grpcListener, err := net.Listen("tcp", ":50000")
+	grpcListener, err := net.Listen("tcp", grpcPort)
 	if err != nil {
 		logger.Log("during", "Listen", "err", err)
 		os.Exit(1)

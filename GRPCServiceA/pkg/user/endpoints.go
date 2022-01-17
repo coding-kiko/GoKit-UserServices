@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 
 	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/entities"
 	"github.com/go-kit/kit/endpoint"
@@ -21,7 +22,10 @@ func MakeEndpoints(s Service) Endpoints {
 
 func makeGetUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(ent.GetUserReq)
+		req, ok := request.(ent.GetUserReq)
+		if !ok {
+			return nil, errors.New("error asserting GetUserReq")
+		}
 		user, err := s.GetUser(ctx, req)
 		if err != nil {
 			return user, err
@@ -32,7 +36,10 @@ func makeGetUserEndpoint(s Service) endpoint.Endpoint {
 
 func makeCreateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(ent.CreateUserReq)
+		req, ok := request.(ent.CreateUserReq)
+		if !ok {
+			return nil, errors.New("error asserting CreateUserReq")
+		}
 		createResp, err := s.CreateUser(ctx, req)
 		if err != nil {
 			return createResp, err
