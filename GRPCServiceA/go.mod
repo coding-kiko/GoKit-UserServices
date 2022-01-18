@@ -1,9 +1,10 @@
-module github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA
+module github.com/fCalixto-Gb/Final-Project/GRPCServiceA
 
 go 1.13
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA v0.0.0-20220114202854-0c884f263ce7
 	github.com/go-kit/kit v0.12.0
 	github.com/go-kit/log v0.2.0
 	github.com/golang/protobuf v1.5.2
