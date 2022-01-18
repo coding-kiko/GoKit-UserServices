@@ -7,9 +7,9 @@ import (
 
 	"github.com/go-kit/kit/log"
 
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/entities"
-	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
-	"github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/utils"
+	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
+	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

@@ -12,3 +12,6 @@ type CreateUserReq struct {
 	Job         string
 	Email       string
 }
+type DeleteUserReq struct {
+	Id string
+}

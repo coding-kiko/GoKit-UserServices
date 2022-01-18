@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/coding-kiko/GoKit-Project-Bootcamp/HTTPService/pkg/user"
+	"github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/user"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"google.golang.org/grpc"

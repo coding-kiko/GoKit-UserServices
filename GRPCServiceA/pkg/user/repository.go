@@ -7,9 +7,9 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/log/level"
 
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/entities"
-	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
-	"github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/utils"
+	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
+	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
 )
 
 type repo struct {
@@ -78,5 +78,27 @@ func (repo *repo) CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.Crea
 	return ent.CreateUserResp{
 		Id:      id,
 		Created: created,
+	}, nil
+}
+
+// Delete user from database by id or email
+func (repo *repo) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error) {
+	logger := log.With(repo.logger, "Repository method", "Delete User")
+	deleteQuery := utils.DeleteQuery(r.Id) // gets corresponding query for Id or Email
+
+	p, err := repo.db.PrepareContext(ctx, deleteQuery)
+	if err != nil {
+		level.Error(logger).Log("error", err.Error())
+		return ent.DeleteUserResp{}, err
+	}
+	defer p.Close()
+
+	_, err = p.ExecContext(ctx, r.Id)
+	if err != nil {
+		level.Error(logger).Log("error", err.Error())
+		return ent.DeleteUserResp{}, err
+	}
+	return ent.DeleteUserResp{
+		Deleted: utils.TimeNow(),
 	}, nil
 }

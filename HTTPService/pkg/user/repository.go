@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 
-	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
+	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
 
-	"github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/user/proto"
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/HTTPService/pkg/entities"
+	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
+	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
 	"github.com/go-kit/kit/log"
 	"google.golang.org/grpc"
 )
@@ -14,11 +14,6 @@ import (
 type gRPCstub struct {
 	conn   *grpc.ClientConn
 	logger log.Logger
-}
-
-type Repository interface {
-	Get(ctx context.Context, req ent.GetUserReq) (ent.GetUserResp, error)
-	Create(ctx context.Context, req ent.CreateUserReq) (ent.CreateUserResp, error)
 }
 
 func NewGRPClient(log log.Logger, con *grpc.ClientConn) *gRPCstub {
@@ -77,5 +72,25 @@ func (g *gRPCstub) Create(ctx context.Context, req ent.CreateUserReq) (ent.Creat
 	} else {
 		err = erro.ErrFromGRPCcode(gRPCcode)
 		return ent.CreateUserResp{}, err
+	}
+}
+
+func (g *gRPCstub) Delete(ctx context.Context, req ent.DeleteUserReq) (ent.DeleteUserResp, error) {
+	client := proto.NewUserServicesClient(g.conn)
+	request := &proto.DeleteUserReq{
+		Id: req.Id,
+	}
+	gRPCresp, err := client.DeleteUser(ctx, request)
+	if err != nil {
+		return ent.DeleteUserResp{}, err
+	}
+	gRPCcode := gRPCresp.Error.Code
+	if gRPCcode == 0 {
+		return ent.DeleteUserResp{
+			Deleted: gRPCresp.Deleted,
+		}, nil
+	} else {
+		err = erro.ErrFromGRPCcode(gRPCcode)
+		return ent.DeleteUserResp{}, err
 	}
 }

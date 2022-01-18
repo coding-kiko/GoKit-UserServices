@@ -4,19 +4,21 @@ import (
 	"context"
 	"errors"
 
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/entities"
+	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
 	"github.com/go-kit/kit/endpoint"
 )
 
 type Endpoints struct {
 	CreateUser endpoint.Endpoint
 	GetUser    endpoint.Endpoint
+	DeleteUser endpoint.Endpoint
 }
 
 func MakeEndpoints(s Service) Endpoints {
 	return Endpoints{
 		GetUser:    makeGetUserEndpoint(s),
 		CreateUser: makeCreateUserEndpoint(s),
+		DeleteUser: makeDeleteUserEndpoint(s),
 	}
 }
 
@@ -45,5 +47,19 @@ func makeCreateUserEndpoint(s Service) endpoint.Endpoint {
 			return createResp, err
 		}
 		return createResp, nil
+	}
+}
+
+func makeDeleteUserEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(ent.DeleteUserReq)
+		if !ok {
+			return nil, errors.New("error asserting DeleteUserReq")
+		}
+		delResp, err := s.DeleteUser(ctx, req)
+		if err != nil {
+			return delResp, err
+		}
+		return delResp, nil
 	}
 }

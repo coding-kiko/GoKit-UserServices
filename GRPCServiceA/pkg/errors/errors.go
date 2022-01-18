@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/user/proto"
+	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
 )
 
 type ErrUserNotFound struct {

@@ -5,15 +5,18 @@ import (
 	"encoding/json"
 	"net/http"
 
-	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/HTTPService/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
+	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
 	kitHttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
 )
 
-var GetUserRoute = "/User/{Id}"
-var CreateUserRoute = "/User"
+var (
+	GetUserRoute    = "/User/{Id}"
+	CreateUserRoute = "/User"
+	DeleteUserRoute = "/User"
+)
 
 func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 	// options to support error control
@@ -40,6 +43,15 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 			options...,
 		),
 	)
+	// CreateUser method handler
+	r.Methods("DELETE").Path(DeleteUserRoute).Handler(
+		kitHttp.NewServer(
+			endpoints.DeleteUser,
+			decodeDeleteUser,
+			encodeResp,
+			options...,
+		),
+	)
 	return r
 }
 
@@ -53,6 +65,15 @@ func encodeResp(ctx context.Context, w http.ResponseWriter, response interface{}
 // decode request entering the http server
 func decodeGetUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req ent.GetUserReq
+	// Getting passed id from path params
+	Id := mux.Vars(r)["Id"]
+	req.Id = Id
+	return req, nil
+}
+
+// decode request entering the http server
+func decodeDeleteUser(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req ent.DeleteUserReq
 	// Getting passed id from path params
 	Id := mux.Vars(r)["Id"]
 	req.Id = Id

@@ -14,3 +14,7 @@ type CreateUserResp struct {
 	Id      string
 	Created string
 }
+
+type DeleteUserResp struct {
+	Deleted string
+}
