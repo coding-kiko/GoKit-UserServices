@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/proto";
+option go_package = "fCalixto-Gb/Final-Project/GRPCServiceA/proto";
 
 package proto;
 
