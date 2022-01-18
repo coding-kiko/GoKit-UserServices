@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
 	"github.com/go-kit/kit/log"
 )
 
