@@ -13,6 +13,7 @@ type gRPCServer struct {
 	getUser    gt.Handler
 	createUser gt.Handler
 	deleteUser gt.Handler
+	updateUser gt.Handler
 	proto.UnimplementedUserServicesServer
 }
 
@@ -32,6 +33,11 @@ func NewGRPCServer(endpoints Endpoints) proto.UserServicesServer {
 			endpoints.DeleteUser,
 			decodeDeleteUserReq,
 			encodeDeleteUserResp,
+		),
+		updateUser: gt.NewServer(
+			endpoints.UpdateUser,
+			decodeUpdateUserReq,
+			encodeUpdateUserResp,
 		),
 	}
 }
@@ -137,6 +143,44 @@ func encodeDeleteUserResp(ctx context.Context, response interface{}) (interface{
 	}
 	return &proto.DeleteUserResp{
 		Deleted: resp.Deleted,
+		Error:   &proto.Status{Code: 0, Message: "ok"},
+	}, nil
+}
+
+func (s *gRPCServer) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) (*proto.UpdateUserResp, error) {
+	_, resp, err := s.updateUser.ServeGRPC(ctx, req)
+	if err != nil {
+		status := erro.ErrToGRPCcode(err)
+		resp = &proto.UpdateUserResp{Error: status}
+		return resp.(*proto.UpdateUserResp), nil
+	}
+	return resp.(*proto.UpdateUserResp), nil
+}
+
+// decode update user request from outside to endpoints
+func decodeUpdateUserReq(ctx context.Context, request interface{}) (interface{}, error) {
+	req := request.(*proto.UpdateUserReq)
+	return ent.UpdateUserReq{
+		Id:          req.Id,
+		Name:        req.Name,
+		Age:         req.Age,
+		Job:         req.Job,
+		Nationality: req.Nationality,
+		Pwd:         req.Pwd,
+		Email:       req.Email,
+	}, nil
+}
+
+// Encode update response from endpoints to the outside
+func encodeUpdateUserResp(ctx context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(ent.UpdateUserResp)
+	if !ok { // in case of error
+		return &proto.UpdateUserResp{
+			Error: &proto.Status{},
+		}, nil
+	}
+	return &proto.UpdateUserResp{
+		Updated: resp.Updated,
 		Error:   &proto.Status{Code: 0, Message: "ok"},
 	}, nil
 }

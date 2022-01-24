@@ -44,6 +44,18 @@ func NewErrUnkown() *ErrUnkown {
 	return &ErrUnkown{Err: errors.New("unkown error")}
 }
 
+type ErrInvalidArguments struct {
+	Err error
+}
+
+func (e *ErrInvalidArguments) Error() string {
+	return fmt.Sprintf("%v", e.Err)
+}
+
+func NewErrInvalidArguments() *ErrInvalidArguments {
+	return &ErrInvalidArguments{Err: errors.New("invalid argument(s)")}
+}
+
 // Receives a custom error, returns the corresponding proto status struct filled
 // Used in grpc service - transport layer
 func ErrToGRPCcode(e error) *proto.Status {
@@ -54,6 +66,9 @@ func ErrToGRPCcode(e error) *proto.Status {
 		status.Message = e.Error()
 	case *ErrAlreadyExists:
 		status.Code = 6
+		status.Message = e.Error()
+	case *ErrInvalidArguments:
+		status.Code = 3
 		status.Message = e.Error()
 	default:
 		status.Code = 2
@@ -71,6 +86,8 @@ func ErrFromGRPCcode(code int32) error {
 		err = NewErrUserNotFound()
 	case 6:
 		err = NewErrAlreadyExists()
+	case 3:
+		err = NewErrInvalidArguments()
 	default:
 		err = NewErrUnkown()
 	}
@@ -85,6 +102,8 @@ func ErrToHTTPStatus(err error) int {
 		return http.StatusNotFound
 	case *ErrAlreadyExists:
 		return http.StatusConflict
+	case *ErrInvalidArguments:
+		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError
 	}

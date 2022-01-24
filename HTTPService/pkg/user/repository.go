@@ -7,7 +7,7 @@ import (
 
 	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
 	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"google.golang.org/grpc"
 )
 
@@ -92,5 +92,31 @@ func (g *gRPCstub) Delete(ctx context.Context, req ent.DeleteUserReq) (ent.Delet
 	} else {
 		err = erro.ErrFromGRPCcode(gRPCcode)
 		return ent.DeleteUserResp{}, err
+	}
+}
+
+func (g *gRPCstub) Update(ctx context.Context, req ent.UpdateUserReq) (ent.UpdateUserResp, error) {
+	client := proto.NewUserServicesClient(g.conn)
+	request := &proto.UpdateUserReq{
+		Id:          req.Id,
+		Name:        req.Name,
+		Age:         req.Age,
+		Nationality: req.Nationality,
+		Job:         req.Job,
+		Pwd:         req.Pwd,
+		Email:       req.Email,
+	}
+	gRPCresp, err := client.UpdateUser(ctx, request)
+	if err != nil {
+		return ent.UpdateUserResp{}, err
+	}
+	gRPCcode := gRPCresp.Error.Code
+	if gRPCcode == 0 {
+		return ent.UpdateUserResp{
+			Updated: gRPCresp.Updated,
+		}, nil
+	} else {
+		err = erro.ErrFromGRPCcode(gRPCcode)
+		return ent.UpdateUserResp{}, err
 	}
 }

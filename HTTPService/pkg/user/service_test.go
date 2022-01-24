@@ -7,9 +7,9 @@ import (
 
 	"github.com/go-kit/log"
 
-	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
 	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
 	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
+	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -18,7 +18,7 @@ type MockRepo struct {
 	mock.Mock
 }
 
-func (m *MockRepo) GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp, error) {
+func (m *MockRepo) Get(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp, error) {
 	args := m.Called(ctx, r)
 	result := args.Get(0)
 	if result == nil {
@@ -27,13 +27,13 @@ func (m *MockRepo) GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserRe
 	return result.(ent.GetUserResp), args.Error(1)
 }
 
-func (m *MockRepo) CreateUser(ctx context.Context, user ent.User) (ent.CreateUserResp, error) {
-	args := m.Called(ctx, user)
+func (m *MockRepo) Create(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error) {
+	args := m.Called(ctx, r)
 	result := args.Get(0)
 	return result.(ent.CreateUserResp), args.Error(1)
 }
 
-func (m *MockRepo) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error) {
+func (m *MockRepo) Delete(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error) {
 	args := m.Called(ctx, r)
 	result := args.Get(0)
 	if result == nil {
@@ -42,7 +42,7 @@ func (m *MockRepo) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.Del
 	return result.(ent.DeleteUserResp), args.Error(1)
 }
 
-func (m *MockRepo) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error) {
+func (m *MockRepo) Update(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error) {
 	args := m.Called(ctx, r)
 	result := args.Get(0)
 	if result == nil {
@@ -110,13 +110,13 @@ func TestCreateUser(t *testing.T) {
 			},
 		},
 		{
-			testName: "invalid arguments",
+			testName: "uinvalid arguments",
 			request: ent.CreateUserReq{
-				Name:        "Michael",
-				Age:         24,
-				Email:       "michael.scott@gmail.com",
-				Pwd:         "admin",
-				Nationality: "american",
+				Name:        "Franco",
+				Age:         32,
+				Email:       "francisco.calixto@globant.com",
+				Pwd:         "12345678",
+				Nationality: "uruguayan",
 				Job:         "",
 			},
 			response: func(req ent.CreateUserReq) (ent.CreateUserResp, error) {
@@ -139,7 +139,7 @@ func TestCreateUser(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			ctx := context.Background()
 			repoRes, err := tc.response(tc.request)
-			mockRepo.On("CreateUser", ctx, tc.request).Return(repoRes, err)
+			mockRepo.On("Create", ctx, tc.request).Return(repoRes, err)
 			res, err := srvc.CreateUser(ctx, tc.request)
 			tc.checkResponse(t, res, err)
 		})
@@ -215,7 +215,7 @@ func TestGetUser(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			ctx := context.Background()
 			repoRes, err := tc.response(tc.request)
-			mockRepo.On("GetUser", ctx, tc.request).Return(repoRes, err)
+			mockRepo.On("Get", ctx, tc.request).Return(repoRes, err)
 			res, err := srvc.GetUser(ctx, tc.request)
 			tc.checkResponse(t, res, err)
 		})
@@ -281,106 +281,8 @@ func TestDeleteUser(t *testing.T) {
 		t.Run(tc.testName, func(t *testing.T) {
 			ctx := context.Background()
 			repoRes, err := tc.response(tc.request)
-			mockRepo.On("DeleteUser", ctx, tc.request).Return(repoRes, err)
+			mockRepo.On("Delete", ctx, tc.request).Return(repoRes, err)
 			res, err := srvc.DeleteUser(ctx, tc.request)
-			tc.checkResponse(t, res, err)
-		})
-	}
-}
-
-func TestUpdateUser(t *testing.T) {
-	var logger log.Logger
-	{
-		logger = log.NewLogfmtLogger(os.Stderr)
-		logger = log.NewSyncLogger(logger)
-		logger = log.With(logger,
-			"service", "grpcUserServiceTesting",
-			"time:", log.DefaultTimestampUTC,
-			"caller", log.DefaultCaller,
-		)
-	}
-
-	validID := utils.NewId()
-	validUpdateReq := ent.UpdateUserReq{
-		Id:          validID,
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         utils.HashPwd("12345678"),
-		Nationality: "brazilian",
-		Job:         "programmer",
-	}
-	invalidUpdateReq := ent.UpdateUserReq{
-		Id:          invalidID,
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         utils.HashPwd("12345678"),
-		Nationality: "brazilian",
-		Job:         "programmer",
-	}
-	invalidArgsUpdateReq := ent.UpdateUserReq{
-		Id:          validID,
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "",
-		Pwd:         utils.HashPwd("12345678"),
-		Nationality: "brazilian",
-		Job:         "programmer",
-	}
-
-	testCases := []struct {
-		testName      string
-		request       ent.UpdateUserReq
-		response      func(req ent.UpdateUserReq) (ent.UpdateUserResp, error)
-		checkResponse func(t *testing.T, resp ent.UpdateUserResp, e error)
-	}{
-		{
-			testName: "update user succesfull",
-			request:  validUpdateReq,
-			response: func(req ent.UpdateUserReq) (ent.UpdateUserResp, error) {
-				return ent.UpdateUserResp{Updated: utils.TimeNow()}, nil
-			},
-			checkResponse: func(t *testing.T, resp ent.UpdateUserResp, e error) {
-				assert.Nil(t, e)
-			},
-		},
-		{
-			testName: "update user not found",
-			request:  invalidUpdateReq,
-			response: func(req ent.UpdateUserReq) (ent.UpdateUserResp, error) {
-				return ent.UpdateUserResp{}, erro.NewErrUserNotFound()
-			},
-			checkResponse: func(t *testing.T, resp ent.UpdateUserResp, e error) {
-				_, ok := e.(*erro.ErrUserNotFound)
-				assert.Equal(t, ok, true)
-				assert.Empty(t, resp)
-			},
-		},
-		{
-			testName: "update user invalid arguments",
-			request:  invalidArgsUpdateReq,
-			response: func(req ent.UpdateUserReq) (ent.UpdateUserResp, error) {
-				return ent.UpdateUserResp{}, erro.NewErrInvalidArguments()
-			},
-			checkResponse: func(t *testing.T, resp ent.UpdateUserResp, e error) {
-				_, ok := e.(*erro.ErrInvalidArguments)
-				assert.Equal(t, ok, true)
-				assert.Empty(t, resp)
-			},
-		},
-	}
-
-	mockRepo := new(MockRepo)
-	mockRepo.AssertExpectations(t)
-	srvc := NewService(logger, mockRepo)
-
-	for _, tc := range testCases {
-		t.Run(tc.testName, func(t *testing.T) {
-			ctx := context.Background()
-			repoRes, err := tc.response(tc.request)
-			mockRepo.On("UpdateUser", ctx, tc.request).Return(repoRes, err)
-			res, err := srvc.UpdateUser(ctx, tc.request)
 			tc.checkResponse(t, res, err)
 		})
 	}

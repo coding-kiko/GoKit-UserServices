@@ -4,6 +4,7 @@ import (
 	"context"
 
 	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
 	"github.com/go-kit/log"
 )
 
@@ -17,12 +18,14 @@ type Service interface {
 	GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp, error)
 	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
 	DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
+	UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
 }
 
 type Repository interface {
 	GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp, error)
-	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
+	CreateUser(ctx context.Context, user ent.User) (ent.CreateUserResp, error)
 	DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
+	UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
 }
 
 func NewService(logger log.Logger, repository Repository) Service {
@@ -41,7 +44,17 @@ func (s service) GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp
 }
 
 func (s service) CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error) {
-	resp, err := s.repo.CreateUser(ctx, r)
+	user := ent.User{
+		Id:          utils.NewId(),
+		Name:        r.Name,
+		Age:         r.Age,
+		Job:         r.Job,
+		Email:       r.Email,
+		Nationality: r.Nationality,
+		Created:     utils.TimeNow(),
+		PwdHsh:      utils.HashPwd(r.Pwd),
+	}
+	resp, err := s.repo.CreateUser(ctx, user)
 	if err != nil {
 		return ent.CreateUserResp{}, err
 	}
@@ -52,6 +65,15 @@ func (s service) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.Delet
 	resp, err := s.repo.DeleteUser(ctx, r)
 	if err != nil {
 		return ent.DeleteUserResp{}, err
+	}
+	return resp, nil
+}
+
+func (s service) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error) {
+	r.Pwd = utils.HashPwd(r.Pwd)
+	resp, err := s.repo.UpdateUser(ctx, r)
+	if err != nil {
+		return ent.UpdateUserResp{}, err
 	}
 	return resp, nil
 }

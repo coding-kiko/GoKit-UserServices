@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"reflect"
 	"strings"
 	"time"
 
@@ -20,4 +21,15 @@ func HashPwd(text string) string {
 
 func NewId() string {
 	return uuid.New().String()
+}
+
+func CheckEmptyField(req interface{}) bool {
+	v := reflect.ValueOf(req)
+
+	for i := 0; i < v.NumField(); i++ {
+		if v.Field(i).Interface() == "" {
+			return true
+		}
+	}
+	return false
 }

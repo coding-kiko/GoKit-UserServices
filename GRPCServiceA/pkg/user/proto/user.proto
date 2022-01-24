@@ -9,6 +9,7 @@ service UserServices {
     rpc GetUser(GetUserReq) returns (GetUserResp) {}
     rpc CreateUser(CreateUserReq) returns (CreateUserResp) {}
     rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {}
+    rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {}
     // other methods to come...
 }
 
@@ -53,5 +54,20 @@ message DeleteUserReq {
 
 message DeleteUserResp {
     string deleted = 1;
+    Status error = 2;
+}
+
+message UpdateUserReq {
+    string name = 1;
+    int64 age = 2;
+    string pwd = 3;
+    string nationality = 4;
+    string job = 5;
+    string email = 6;
+    string id = 7;
+}
+
+message UpdateUserResp {
+    string updated = 1;
     Status error = 2;
 }
