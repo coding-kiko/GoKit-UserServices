@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
+	erro "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/errors"
 
 	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
 	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
@@ -98,7 +98,6 @@ func (g *gRPCstub) Delete(ctx context.Context, req ent.DeleteUserReq) (ent.Delet
 func (g *gRPCstub) Update(ctx context.Context, req ent.UpdateUserReq) (ent.UpdateUserResp, error) {
 	client := proto.NewUserServicesClient(g.conn)
 	request := &proto.UpdateUserReq{
-		Id:          req.Id,
 		Name:        req.Name,
 		Age:         req.Age,
 		Nationality: req.Nationality,

@@ -64,7 +64,6 @@ message UpdateUserReq {
     string nationality = 4;
     string job = 5;
     string email = 6;
-    string id = 7;
 }
 
 message UpdateUserResp {

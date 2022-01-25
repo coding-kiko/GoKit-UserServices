@@ -385,7 +385,6 @@ func TestUpdateUserSuccess(t *testing.T) {
 	}()
 
 	validUpdateReq := ent.UpdateUserReq{
-		Id:          validID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",
@@ -406,7 +405,6 @@ func TestUpdateUserSuccess(t *testing.T) {
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.UpdateUser(ctx, &proto.UpdateUserReq{
-		Id:          validID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",
@@ -438,7 +436,6 @@ func TestUpdateUserInvalidArgs(t *testing.T) {
 	}()
 
 	invalidUpdateReq := ent.UpdateUserReq{
-		Id:          validID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",
@@ -459,7 +456,6 @@ func TestUpdateUserInvalidArgs(t *testing.T) {
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.UpdateUser(ctx, &proto.UpdateUserReq{
-		Id:          validID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",
@@ -491,7 +487,6 @@ func TestUpdateUserNotFound(t *testing.T) {
 	}()
 
 	invalidUpdateReq := ent.UpdateUserReq{
-		Id:          invalidID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",
@@ -512,7 +507,6 @@ func TestUpdateUserNotFound(t *testing.T) {
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.UpdateUser(ctx, &proto.UpdateUserReq{
-		Id:          invalidID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",

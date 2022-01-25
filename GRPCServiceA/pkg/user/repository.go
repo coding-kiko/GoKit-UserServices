@@ -53,12 +53,6 @@ func (repo *repo) GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserRes
 func (repo *repo) CreateUser(ctx context.Context, user ent.User) (ent.CreateUserResp, error) {
 	logger := log.With(repo.logger, "Repository method", "CreateUser")
 
-	// Look for any empty fields
-	if utils.CheckEmptyField(user) {
-		level.Error(logger).Log("error", "invalid number of arguments")
-		return ent.CreateUserResp{}, erro.NewErrInvalidArguments()
-	}
-
 	// check (by email) if user already exists in the database
 	if _, err := repo.GetUser(ctx, ent.GetUserReq{Id: user.Email}); err == nil {
 		level.Error(logger).Log("error", "User already exists")
@@ -112,27 +106,21 @@ func (repo *repo) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.Dele
 // Create new user in the database
 func (repo *repo) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error) {
 	logger := log.With(repo.logger, "Repository method", "UpdateUser")
-	updateQuery := utils.UpdateQuery(r.Id) // gets corresponding query for Id or Email
-
-	// Look for any empty fields
-	if utils.CheckEmptyField(r) {
-		level.Error(logger).Log("error", "invalid number of arguments")
-		return ent.UpdateUserResp{}, erro.NewErrInvalidArguments()
-	}
 
 	// check (by email) if user exists in the database
-	if _, err := repo.GetUser(ctx, ent.GetUserReq{Id: r.Email}); err != nil {
+	_, err := repo.GetUser(ctx, ent.GetUserReq{Id: r.Email})
+	if _, ok := err.(*erro.ErrUserNotFound); ok {
 		return ent.UpdateUserResp{}, err
 	}
 
-	p, err := repo.db.PrepareContext(ctx, updateQuery)
+	p, err := repo.db.PrepareContext(ctx, utils.UpdateQuery)
 	if err != nil {
 		level.Error(logger).Log("error", err.Error())
 		return ent.UpdateUserResp{}, err
 	}
 	defer p.Close()
 
-	_, err = p.ExecContext(ctx, r.Name, r.Age, r.Email, r.Pwd, r.Nationality, r.Job, r.Id)
+	_, err = p.ExecContext(ctx, r.Name, r.Age, r.Email, r.Pwd, r.Nationality, r.Job, r.Email)
 	if err != nil {
 		level.Error(logger).Log("error", err.Error())
 		return ent.UpdateUserResp{}, err

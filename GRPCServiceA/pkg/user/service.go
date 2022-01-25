@@ -4,8 +4,10 @@ import (
 	"context"
 
 	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
 	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 )
 
 type service struct {
@@ -44,6 +46,14 @@ func (s service) GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp
 }
 
 func (s service) CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error) {
+	logger := log.With(s.logger, "Service method", "CreateUser")
+
+	// Look for any empty fields
+	if utils.CheckEmptyField(r) {
+		level.Error(logger).Log("error", "invalid number of arguments")
+		return ent.CreateUserResp{}, erro.NewErrInvalidArguments()
+	}
+
 	user := ent.User{
 		Id:          utils.NewId(),
 		Name:        r.Name,
@@ -70,6 +80,14 @@ func (s service) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.Delet
 }
 
 func (s service) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error) {
+	logger := log.With(s.logger, "Service method", "UpdateUser")
+
+	// Look for any empty fields
+	if utils.CheckEmptyField(r) {
+		level.Error(logger).Log("error", "invalid number of arguments")
+		return ent.UpdateUserResp{}, erro.NewErrInvalidArguments()
+	}
+
 	r.Pwd = utils.HashPwd(r.Pwd)
 	resp, err := s.repo.UpdateUser(ctx, r)
 	if err != nil {

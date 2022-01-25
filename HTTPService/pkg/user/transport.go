@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
 	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/errors"
 	kitHttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
@@ -16,7 +16,7 @@ var (
 	GetUserRoute    = "/User/{Id}"
 	CreateUserRoute = "/User"
 	DeleteUserRoute = "/User/{Id}"
-	UpdateUserRoute = "/User/{Id}"
+	UpdateUserRoute = "/User"
 )
 
 func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
@@ -110,13 +110,10 @@ func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error)
 // decode request entering the http server
 func decodeUpdateUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req ent.UpdateUserReq
-	// Getting passed id from path params
-	Id := mux.Vars(r)["Id"]
 	// translating json to my CreateUserReq struct
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
 	}
-	req.Id = Id
 	return req, nil
 }
 

@@ -300,31 +300,27 @@ func TestUpdateUser(t *testing.T) {
 		)
 	}
 
-	validID := utils.NewId()
 	validUpdateReq := ent.UpdateUserReq{
-		Id:          validID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",
-		Pwd:         utils.HashPwd("12345678"),
+		Pwd:         "12345678",
 		Nationality: "brazilian",
 		Job:         "programmer",
 	}
 	invalidUpdateReq := ent.UpdateUserReq{
-		Id:          invalidID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "francisco.calixto@globant.com",
-		Pwd:         utils.HashPwd("12345678"),
+		Pwd:         "12345678",
 		Nationality: "brazilian",
 		Job:         "programmer",
 	}
 	invalidArgsUpdateReq := ent.UpdateUserReq{
-		Id:          validID,
 		Name:        "Francisco",
 		Age:         21,
 		Email:       "",
-		Pwd:         utils.HashPwd("12345678"),
+		Pwd:         "12345678",
 		Nationality: "brazilian",
 		Job:         "programmer",
 	}

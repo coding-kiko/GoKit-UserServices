@@ -161,7 +161,6 @@ func (s *gRPCServer) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) (
 func decodeUpdateUserReq(ctx context.Context, request interface{}) (interface{}, error) {
 	req := request.(*proto.UpdateUserReq)
 	return ent.UpdateUserReq{
-		Id:          req.Id,
 		Name:        req.Name,
 		Age:         req.Age,
 		Job:         req.Job,

@@ -10,8 +10,7 @@ const (
 	CreateQuery     string = "INSERT INTO Users (id, name, age, email, pwd, nationality, job, created) VALUES (?,?,?,?,?,?,?,?)"
 	DeleteById      string = "DELETE FROM Users WHERE id=?"
 	DeleteByEmail   string = "DELETE FROM Users WHERE email=?"
-	UpdateByEmail   string = "UPDATE Users SET name=?, age=?, email=?, pwd=?, nationality=?, job=? where email=?"
-	UpdateById      string = "UPDATE Users SET name=?, age=?, email=?, pwd=?, nationality=?, job=? where id=?"
+	UpdateQuery     string = "UPDATE Users SET name=?, age=?, email=?, pwd=?, nationality=?, job=? where email=?"
 )
 
 func GetQuery(s string) string {
@@ -26,11 +25,4 @@ func DeleteQuery(s string) string {
 		return DeleteByEmail
 	}
 	return DeleteById
-}
-
-func UpdateQuery(s string) string {
-	if strings.Contains(s, "@") {
-		return UpdateByEmail
-	}
-	return UpdateById
 }

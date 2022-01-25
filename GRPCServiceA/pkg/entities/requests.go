@@ -18,7 +18,6 @@ type DeleteUserReq struct {
 }
 
 type UpdateUserReq struct {
-	Id          string
 	Pwd         string
 	Name        string
 	Age         int64
