@@ -17,6 +17,16 @@ type CreateUserResp struct {
 	Error   Status
 }
 
+type DeleteUserResp struct {
+	Deleted string
+	Error   Status
+}
+
+type UpdateUserResp struct {
+	Updated string
+	Error   Status
+}
+
 type Status struct {
 	Message string
 	Code    int32

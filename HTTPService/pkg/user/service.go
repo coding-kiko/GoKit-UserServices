@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/HTTPService/pkg/entities"
-	"github.com/go-kit/kit/log"
+	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
+	"github.com/go-kit/log"
 )
 
 type service struct {
@@ -14,6 +14,15 @@ type service struct {
 type Service interface {
 	GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserResp, error)
 	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
+	DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
+	UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
+}
+
+type Repository interface {
+	Get(ctx context.Context, req ent.GetUserReq) (ent.GetUserResp, error)
+	Create(ctx context.Context, req ent.CreateUserReq) (ent.CreateUserResp, error)
+	Delete(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
+	Update(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
 }
 
 func NewService(log log.Logger, repository Repository) Service {
@@ -37,6 +46,24 @@ func (s service) CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.Creat
 	resp, err := s.repo.Create(ctx, r)
 	if err != nil {
 		return ent.CreateUserResp{}, err
+	}
+	return resp, nil
+}
+
+// interaction with respository -> grpc stub (client)
+func (s service) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error) {
+	resp, err := s.repo.Delete(ctx, r)
+	if err != nil {
+		return ent.DeleteUserResp{}, err
+	}
+	return resp, nil
+}
+
+// interaction with respository -> grpc stub (client)
+func (s service) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error) {
+	resp, err := s.repo.Update(ctx, r)
+	if err != nil {
+		return ent.UpdateUserResp{}, err
 	}
 	return resp, nil
 }

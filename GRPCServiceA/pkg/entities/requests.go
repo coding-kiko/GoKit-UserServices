@@ -12,3 +12,16 @@ type CreateUserReq struct {
 	Job         string
 	Email       string
 }
+
+type DeleteUserReq struct {
+	Id string
+}
+
+type UpdateUserReq struct {
+	Pwd         string
+	Name        string
+	Age         int64
+	Nationality string
+	Job         string
+	Email       string
+}

@@ -5,15 +5,19 @@ import (
 	"encoding/json"
 	"net/http"
 
-	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/HTTPService/pkg/entities"
+	ent "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/HTTPService/pkg/errors"
 	kitHttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
 )
 
-var GetUserRoute = "/User/{Id}"
-var CreateUserRoute = "/User"
+var (
+	GetUserRoute    = "/User/{Id}"
+	CreateUserRoute = "/User"
+	DeleteUserRoute = "/User/{Id}"
+	UpdateUserRoute = "/User"
+)
 
 func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 	// options to support error control
@@ -27,7 +31,7 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 		kitHttp.NewServer(
 			endpoints.GetUser,
 			decodeGetUser,
-			encodeResp,
+			encodeStatusOKResp,
 			options...,
 		),
 	)
@@ -36,7 +40,25 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 		kitHttp.NewServer(
 			endpoints.CreateUser,
 			decodeCreateUser,
-			encodeResp,
+			encodeCreateResp,
+			options...,
+		),
+	)
+	// CreateUser method handler
+	r.Methods("DELETE").Path(DeleteUserRoute).Handler(
+		kitHttp.NewServer(
+			endpoints.DeleteUser,
+			decodeDeleteUser,
+			encodeStatusOKResp,
+			options...,
+		),
+	)
+	// updateUser method handler
+	r.Methods("PUT").Path(UpdateUserRoute).Handler(
+		kitHttp.NewServer(
+			endpoints.UpdateUser,
+			decodeUpdateUser,
+			encodeStatusOKResp,
 			options...,
 		),
 	)
@@ -44,7 +66,7 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 }
 
 // Encodes to json to give a http response
-func encodeResp(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeStatusOKResp(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	return json.NewEncoder(w).Encode(response)
@@ -60,8 +82,34 @@ func decodeGetUser(ctx context.Context, r *http.Request) (interface{}, error) {
 }
 
 // decode request entering the http server
+func decodeDeleteUser(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req ent.DeleteUserReq
+	// Getting passed id from path params
+	Id := mux.Vars(r)["Id"]
+	req.Id = Id
+	return req, nil
+}
+
+// Encodes to json to give a 201 created response
+func encodeCreateResp(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusCreated)
+	return json.NewEncoder(w).Encode(response)
+}
+
+// decode request entering the http server
 func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req ent.CreateUserReq
+	// translating json to my CreateUserReq struct
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+// decode request entering the http server
+func decodeUpdateUser(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req ent.UpdateUserReq
 	// translating json to my CreateUserReq struct
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err

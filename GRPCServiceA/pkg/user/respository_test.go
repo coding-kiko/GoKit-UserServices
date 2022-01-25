@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/entities"
-	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
-	"github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/utils"
+	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
+	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +28,7 @@ func NewMock(logger log.Logger) (*sql.DB, sqlmock.Sqlmock) {
 var validID = utils.NewId()
 var invalidID = "hd2h97643gg2g9d7dhjfj"
 
-var mockNewUser = &ent.User{
+var mockNewUser = ent.User{
 	Name:        "Francisco",
 	Age:         20,
 	PwdHsh:      utils.HashPwd("12345678"),
@@ -130,6 +130,223 @@ func TestRepoGetUser(t *testing.T) {
 			tc.execute(mock, tc.request)
 
 			res, err := repo.GetUser(ctx, tc.request)
+			tc.checkResponse(t, res, err)
+		})
+	}
+}
+
+func TestRepoDeleteUser(t *testing.T) {
+	var logger log.Logger
+	{
+		logger = log.NewLogfmtLogger(os.Stderr)
+		logger = log.NewSyncLogger(logger)
+		logger = log.With(logger,
+			"service", "repo_test",
+			"time:", log.DefaultTimestampUTC,
+			"caller", log.DefaultCaller,
+		)
+	}
+
+	db, mock := NewMock(logger)
+	defer db.Close()
+
+	repo := NewRepo(logger, db)
+
+	testCases := []struct {
+		testName      string
+		request       ent.DeleteUserReq
+		execute       func(mock sqlmock.Sqlmock, req ent.DeleteUserReq)
+		checkResponse func(t *testing.T, resp ent.DeleteUserResp, err error)
+	}{
+		{
+			testName: "delete user by id successfull",
+			request: ent.DeleteUserReq{
+				Id: validID,
+			},
+			execute: func(mock sqlmock.Sqlmock, req ent.DeleteUserReq) {
+				sqlmock.NewRows([]string{"id", "name", "age", "email", "nationality", "job", "created"}).
+					AddRow(mockNewUser.Id, mockNewUser.Name, mockNewUser.Age, mockNewUser.Email, mockNewUser.Nationality, mockNewUser.Job, mockNewUser.Created)
+
+				mock.ExpectPrepare(utils.DeleteById)
+				mock.ExpectExec(utils.DeleteById).
+					WithArgs(req.Id).
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+			checkResponse: func(t *testing.T, resp ent.DeleteUserResp, err error) {
+				assert.NoError(t, err)
+			},
+		},
+		{
+			testName: "delete user by email successfull",
+			request: ent.DeleteUserReq{
+				Id: "francisco.calixto@globant.com",
+			},
+			execute: func(mock sqlmock.Sqlmock, req ent.DeleteUserReq) {
+				sqlmock.NewRows([]string{"id", "name", "age", "email", "nationality", "job", "created"}).
+					AddRow(mockNewUser.Id, mockNewUser.Name, mockNewUser.Age, mockNewUser.Email, mockNewUser.Nationality, mockNewUser.Job, mockNewUser.Created)
+
+				mock.ExpectPrepare(utils.DeleteByEmail)
+				mock.ExpectExec(utils.DeleteByEmail).
+					WithArgs(req.Id).
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+			checkResponse: func(t *testing.T, resp ent.DeleteUserResp, err error) {
+				assert.NoError(t, err)
+			},
+		},
+		{
+			testName: "delete user not found",
+			request: ent.DeleteUserReq{
+				Id: invalidID,
+			},
+			execute: func(mock sqlmock.Sqlmock, req ent.DeleteUserReq) {
+				sqlmock.NewRows([]string{"id", "name", "age", "email", "nationality", "job", "created"})
+
+				mock.ExpectPrepare(utils.DeleteById)
+				mock.ExpectExec(utils.DeleteById).
+					WithArgs(req.Id).
+					WillReturnResult(sqlmock.NewResult(0, 0))
+			},
+			checkResponse: func(t *testing.T, resp ent.DeleteUserResp, err error) {
+				assert.Equal(t, err.Error(), "user not found")
+				_, ok := err.(*erro.ErrUserNotFound)
+				assert.Equal(t, true, ok)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			ctx := context.Background()
+
+			tc.execute(mock, tc.request)
+
+			res, err := repo.DeleteUser(ctx, tc.request)
+			tc.checkResponse(t, res, err)
+		})
+	}
+}
+
+func TestRepoUpdateUser(t *testing.T) {
+	var logger log.Logger
+	{
+		logger = log.NewLogfmtLogger(os.Stderr)
+		logger = log.NewSyncLogger(logger)
+		logger = log.With(logger,
+			"service", "repo_test",
+			"time:", log.DefaultTimestampUTC,
+			"caller", log.DefaultCaller,
+		)
+	}
+
+	db, mock := NewMock(logger)
+	defer db.Close()
+
+	repo := NewRepo(logger, db)
+
+	validUpdateReq := ent.UpdateUserReq{
+		Name:        "Francisco",
+		Age:         21,
+		Email:       "francisco.calixto@globant.com",
+		Pwd:         utils.HashPwd("12345678"),
+		Nationality: "brazilian",
+		Job:         "programmer",
+	}
+
+	testCases := []struct {
+		testName      string
+		request       ent.UpdateUserReq
+		execute       func(mock sqlmock.Sqlmock, req ent.UpdateUserReq)
+		checkResponse func(t *testing.T, resp ent.UpdateUserResp, err error)
+	}{
+		{
+			testName: "update user successfully",
+			request:  validUpdateReq,
+			execute: func(mock sqlmock.Sqlmock, req ent.UpdateUserReq) {
+				rows := sqlmock.NewRows([]string{"id", "name", "age", "email", "nationality", "job", "created"}).
+					AddRow(validID, req.Name, req.Age, req.Email, req.Nationality, req.Job, utils.TimeNow())
+
+				mock.ExpectPrepare(utils.GetQueryByEmail)
+				mock.ExpectQuery(utils.GetQueryByEmail).
+					WithArgs(req.Email).
+					WillReturnRows(rows)
+				mock.ExpectPrepare(utils.UpdateQuery)
+				mock.ExpectExec(utils.UpdateQuery).
+					WithArgs(req.Name, req.Age, req.Email, req.Pwd, req.Nationality, req.Job, req.Email).
+					WillReturnResult(sqlmock.NewResult(0, 1))
+			},
+			checkResponse: func(t *testing.T, resp ent.UpdateUserResp, err error) {
+				assert.Nil(t, err)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			ctx := context.Background()
+
+			tc.execute(mock, tc.request)
+
+			res, err := repo.UpdateUser(ctx, tc.request)
+			tc.checkResponse(t, res, err)
+		})
+	}
+}
+
+func TestRepoCreateUser(t *testing.T) {
+	var logger log.Logger
+	{
+		logger = log.NewLogfmtLogger(os.Stderr)
+		logger = log.NewSyncLogger(logger)
+		logger = log.With(logger,
+			"service", "repo_test",
+			"time:", log.DefaultTimestampUTC,
+			"caller", log.DefaultCaller,
+		)
+	}
+
+	db, mock := NewMock(logger)
+	defer db.Close()
+
+	repo := NewRepo(logger, db)
+
+	testCases := []struct {
+		testName      string
+		request       ent.User
+		execute       func(mock sqlmock.Sqlmock, req ent.User)
+		checkResponse func(t *testing.T, resp ent.CreateUserResp, err error)
+	}{
+		{
+			testName: "create user already exists",
+			request:  mockNewUser,
+			execute: func(mock sqlmock.Sqlmock, req ent.User) {
+				rows := sqlmock.NewRows([]string{"id", "name", "age", "email", "nationality", "job", "created"}).
+					AddRow(mockNewUser.Id, mockNewUser.Name, mockNewUser.Age, mockNewUser.Email, mockNewUser.Nationality, mockNewUser.Job, mockNewUser.Created)
+
+				mock.ExpectPrepare(utils.GetQueryByEmail)
+				mock.ExpectQuery(utils.GetQueryByEmail).
+					WithArgs(req.Email).
+					WillReturnRows(rows)
+				mock.ExpectPrepare(utils.CreateQuery)
+				mock.ExpectExec(utils.CreateQuery).
+					WithArgs(req.Id, req.Name, req.Age, req.Email, req.PwdHsh, req.Nationality, req.Job, req.Created).
+					WillReturnResult(sqlmock.NewResult(0, 0))
+			},
+			checkResponse: func(t *testing.T, resp ent.CreateUserResp, err error) {
+				_, ok := err.(*erro.ErrAlreadyExists)
+				assert.True(t, ok)
+
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.testName, func(t *testing.T) {
+			ctx := context.Background()
+
+			tc.execute(mock, tc.request)
+
+			res, err := repo.CreateUser(ctx, tc.request)
 			tc.checkResponse(t, res, err)
 		})
 	}

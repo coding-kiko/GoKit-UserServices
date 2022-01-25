@@ -1,4 +1,4 @@
-module github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA
+module github.com/fCalixto-Gb/Final-Project/GRPCServiceA
 
 go 1.13
 

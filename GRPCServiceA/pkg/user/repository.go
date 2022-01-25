@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
-	ent "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/entities"
-	erro "github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/errors"
-	"github.com/coding-kiko/GoKit-Project-Bootcamp/GRPCServiceA/pkg/utils"
+	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
+	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
 )
 
 type repo struct {
@@ -50,18 +50,14 @@ func (repo *repo) GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserRes
 }
 
 // Create new user in the database
-func (repo *repo) CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error) {
-	logger := log.With(repo.logger, "Repository method", "GetUser")
+func (repo *repo) CreateUser(ctx context.Context, user ent.User) (ent.CreateUserResp, error) {
+	logger := log.With(repo.logger, "Repository method", "CreateUser")
 
 	// check (by email) if user already exists in the database
-	if _, err := repo.GetUser(ctx, ent.GetUserReq{Id: r.Email}); err == nil {
+	if _, err := repo.GetUser(ctx, ent.GetUserReq{Id: user.Email}); err == nil {
 		level.Error(logger).Log("error", "User already exists")
 		return ent.CreateUserResp{}, erro.NewErrAlreadyExists()
 	}
-
-	id := utils.NewId()
-	created := utils.TimeNow()
-	pwdHsh := utils.HashPwd(r.Pwd)
 
 	p, err := repo.db.PrepareContext(ctx, utils.CreateQuery)
 	if err != nil {
@@ -70,13 +66,66 @@ func (repo *repo) CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.Crea
 	}
 	defer p.Close()
 
-	_, err = p.ExecContext(ctx, id, r.Name, r.Age, r.Email, pwdHsh, r.Nationality, r.Job, created)
+	_, err = p.ExecContext(ctx, user.Id, user.Name, user.Age, user.Email, user.PwdHsh, user.Nationality, user.Job, user.Created)
 	if err != nil {
 		level.Error(logger).Log("error", err.Error())
 		return ent.CreateUserResp{}, err
 	}
 	return ent.CreateUserResp{
-		Id:      id,
-		Created: created,
+		Id:      user.Id,
+		Created: user.Created,
+	}, nil
+}
+
+// Delete user from database by id or email
+func (repo *repo) DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error) {
+	logger := log.With(repo.logger, "Repository method", "Delete User")
+	deleteQuery := utils.DeleteQuery(r.Id) // gets corresponding query for Id or Email
+
+	p, err := repo.db.PrepareContext(ctx, deleteQuery)
+	if err != nil {
+		level.Error(logger).Log("error", err.Error())
+		return ent.DeleteUserResp{}, err
+	}
+	defer p.Close()
+
+	res, err := p.ExecContext(ctx, r.Id)
+	if err != nil {
+		level.Error(logger).Log("error", err.Error())
+		return ent.DeleteUserResp{}, err
+	}
+	if rows, _ := res.RowsAffected(); rows != 1 {
+		level.Error(logger).Log("error", "User not found")
+		return ent.DeleteUserResp{}, erro.NewErrUserNotFound()
+	}
+	return ent.DeleteUserResp{
+		Deleted: utils.TimeNow(),
+	}, nil
+}
+
+// Create new user in the database
+func (repo *repo) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error) {
+	logger := log.With(repo.logger, "Repository method", "UpdateUser")
+
+	// check (by email) if user exists in the database
+	_, err := repo.GetUser(ctx, ent.GetUserReq{Id: r.Email})
+	if _, ok := err.(*erro.ErrUserNotFound); ok {
+		return ent.UpdateUserResp{}, err
+	}
+
+	p, err := repo.db.PrepareContext(ctx, utils.UpdateQuery)
+	if err != nil {
+		level.Error(logger).Log("error", err.Error())
+		return ent.UpdateUserResp{}, err
+	}
+	defer p.Close()
+
+	_, err = p.ExecContext(ctx, r.Name, r.Age, r.Email, r.Pwd, r.Nationality, r.Job, r.Email)
+	if err != nil {
+		level.Error(logger).Log("error", err.Error())
+		return ent.UpdateUserResp{}, err
+	}
+	return ent.UpdateUserResp{
+		Updated: utils.TimeNow(),
 	}, nil
 }
