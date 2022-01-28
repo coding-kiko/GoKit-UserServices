@@ -4,6 +4,8 @@ option go_package = "fCalixto-Gb/Final-Project/GRPCServiceA/proto";
 
 package proto;
 
+import "google/api/annotations.proto";
+
 // grpc service interface definition
 service UserServices {
     rpc GetUser(GetUserReq) returns (GetUserResp) {}
