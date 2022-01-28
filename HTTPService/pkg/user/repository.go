@@ -35,13 +35,13 @@ func (g *gRPCstub) Get(ctx context.Context, req ent.GetUserReq) (ent.GetUserResp
 	gRPCcode := gRPCresp.Error.Code
 	if gRPCcode == 0 {
 		return ent.GetUserResp{
-			Name:        gRPCresp.Name,
-			Nationality: gRPCresp.Nationality,
-			Job:         gRPCresp.Job,
-			Age:         gRPCresp.Age,
-			Id:          gRPCresp.Id,
-			Created:     gRPCresp.Created,
-			Email:       gRPCresp.Email,
+			Name:    gRPCresp.Name,
+			Country: gRPCresp.Country,
+			Job:     gRPCresp.Job,
+			Age:     gRPCresp.Age,
+			Id:      gRPCresp.Id,
+			Created: gRPCresp.Created,
+			Email:   gRPCresp.Email,
 		}, nil
 	} else {
 		err = erro.ErrFromGRPCcode(gRPCcode)
@@ -52,12 +52,12 @@ func (g *gRPCstub) Get(ctx context.Context, req ent.GetUserReq) (ent.GetUserResp
 func (g *gRPCstub) Create(ctx context.Context, req ent.CreateUserReq) (ent.CreateUserResp, error) {
 	client := proto.NewUserServicesClient(g.conn)
 	request := &proto.CreateUserReq{
-		Name:        req.Name,
-		Age:         req.Age,
-		Nationality: req.Nationality,
-		Job:         req.Job,
-		Pwd:         req.Pwd,
-		Email:       req.Email,
+		Name:    req.Name,
+		Age:     req.Age,
+		Country: req.Country,
+		Job:     req.Job,
+		Pwd:     req.Pwd,
+		Email:   req.Email,
 	}
 	gRPCresp, err := client.CreateUser(ctx, request)
 	if err != nil {
@@ -98,12 +98,12 @@ func (g *gRPCstub) Delete(ctx context.Context, req ent.DeleteUserReq) (ent.Delet
 func (g *gRPCstub) Update(ctx context.Context, req ent.UpdateUserReq) (ent.UpdateUserResp, error) {
 	client := proto.NewUserServicesClient(g.conn)
 	request := &proto.UpdateUserReq{
-		Name:        req.Name,
-		Age:         req.Age,
-		Nationality: req.Nationality,
-		Job:         req.Job,
-		Pwd:         req.Pwd,
-		Email:       req.Email,
+		Name:    req.Name,
+		Age:     req.Age,
+		Country: req.Country,
+		Job:     req.Job,
+		Pwd:     req.Pwd,
+		Email:   req.Email,
 	}
 	gRPCresp, err := client.UpdateUser(ctx, request)
 	if err != nil {
@@ -117,5 +117,26 @@ func (g *gRPCstub) Update(ctx context.Context, req ent.UpdateUserReq) (ent.Updat
 	} else {
 		err = erro.ErrFromGRPCcode(gRPCcode)
 		return ent.UpdateUserResp{}, err
+	}
+}
+
+func (g *gRPCstub) Authenticate(ctx context.Context, req ent.AuthenticateReq) (ent.AuthenticateResp, error) {
+	client := proto.NewUserServicesClient(g.conn)
+	request := &proto.AuthenticateReq{
+		Pwd:   req.Pwd,
+		Email: req.Email,
+	}
+	gRPCresp, err := client.Authenticate(ctx, request)
+	if err != nil {
+		return ent.AuthenticateResp{}, err
+	}
+	gRPCcode := gRPCresp.Error.Code
+	if gRPCcode == 0 {
+		return ent.AuthenticateResp{
+			Token: gRPCresp.Token,
+		}, nil
+	} else {
+		err = erro.ErrFromGRPCcode(gRPCcode)
+		return ent.AuthenticateResp{}, err
 	}
 }

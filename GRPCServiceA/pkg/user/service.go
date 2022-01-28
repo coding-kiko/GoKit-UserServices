@@ -21,6 +21,7 @@ type Service interface {
 	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
 	DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
 	UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
+	AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (ent.AuthenticateResp, error)
 }
 
 type Repository interface {
@@ -28,6 +29,7 @@ type Repository interface {
 	CreateUser(ctx context.Context, user ent.User) (ent.CreateUserResp, error)
 	DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
 	UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
+	AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (string, error)
 }
 
 func NewService(logger log.Logger, repository Repository) Service {
@@ -55,14 +57,14 @@ func (s service) CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.Creat
 	}
 
 	user := ent.User{
-		Id:          utils.NewId(),
-		Name:        r.Name,
-		Age:         r.Age,
-		Job:         r.Job,
-		Email:       r.Email,
-		Nationality: r.Nationality,
-		Created:     utils.TimeNow(),
-		PwdHsh:      utils.HashPwd(r.Pwd),
+		Id:      utils.NewId(),
+		Name:    r.Name,
+		Age:     r.Age,
+		Job:     r.Job,
+		Email:   r.Email,
+		Country: r.Country,
+		Created: utils.TimeNow(),
+		PwdHsh:  utils.HashPwd(r.Pwd),
 	}
 	resp, err := s.repo.CreateUser(ctx, user)
 	if err != nil {
@@ -93,5 +95,34 @@ func (s service) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.Updat
 	if err != nil {
 		return ent.UpdateUserResp{}, err
 	}
+	return resp, nil
+}
+
+func (s service) AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (ent.AuthenticateResp, error) {
+	logger := log.With(s.logger, "Service method", "AuthenticateUser")
+
+	// Check for any empty fields
+	if utils.CheckEmptyField(r) {
+		level.Error(logger).Log("error", "invalid number of arguments")
+		return ent.AuthenticateResp{}, erro.NewErrInvalidArguments()
+	}
+
+	// retrieve pwd from database
+	pwdhsh, err := s.repo.AuthenticateUser(ctx, r)
+	if err != nil {
+		return ent.AuthenticateResp{}, err
+	}
+
+	// verify password
+	if pwdhsh != utils.HashPwd(r.Pwd) {
+		level.Error(logger).Log("error", "incorrect password")
+		return ent.AuthenticateResp{}, erro.NewErrInvalidCredentials()
+	}
+
+	signedToken := utils.NewToken(r.Email)
+	resp := ent.AuthenticateResp{
+		Token: signedToken,
+	}
+
 	return resp, nil
 }

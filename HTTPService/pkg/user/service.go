@@ -16,6 +16,7 @@ type Service interface {
 	CreateUser(ctx context.Context, r ent.CreateUserReq) (ent.CreateUserResp, error)
 	DeleteUser(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
 	UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
+	AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (ent.AuthenticateResp, error)
 }
 
 type Repository interface {
@@ -23,6 +24,7 @@ type Repository interface {
 	Create(ctx context.Context, req ent.CreateUserReq) (ent.CreateUserResp, error)
 	Delete(ctx context.Context, r ent.DeleteUserReq) (ent.DeleteUserResp, error)
 	Update(ctx context.Context, r ent.UpdateUserReq) (ent.UpdateUserResp, error)
+	Authenticate(ctx context.Context, r ent.AuthenticateReq) (ent.AuthenticateResp, error)
 }
 
 func NewService(log log.Logger, repository Repository) Service {
@@ -64,6 +66,15 @@ func (s service) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.Updat
 	resp, err := s.repo.Update(ctx, r)
 	if err != nil {
 		return ent.UpdateUserResp{}, err
+	}
+	return resp, nil
+}
+
+// interaction with respository -> grpc stub (client)
+func (s service) AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (ent.AuthenticateResp, error) {
+	resp, err := s.repo.Authenticate(ctx, r)
+	if err != nil {
+		return ent.AuthenticateResp{}, err
 	}
 	return resp, nil
 }

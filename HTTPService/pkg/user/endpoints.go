@@ -8,18 +8,20 @@ import (
 )
 
 type Endpoints struct {
-	CreateUser endpoint.Endpoint
-	GetUser    endpoint.Endpoint
-	DeleteUser endpoint.Endpoint
-	UpdateUser endpoint.Endpoint
+	CreateUser   endpoint.Endpoint
+	GetUser      endpoint.Endpoint
+	DeleteUser   endpoint.Endpoint
+	UpdateUser   endpoint.Endpoint
+	Authenticate endpoint.Endpoint
 }
 
 func MakeEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetUser:    makeGetUserEndpoint(s),
-		CreateUser: makeCreateUserEndpoint(s),
-		DeleteUser: makeDeleteUserEndpoint(s),
-		UpdateUser: makeUpdateUserEndpoint(s),
+		GetUser:      makeGetUserEndpoint(s),
+		CreateUser:   makeCreateUserEndpoint(s),
+		DeleteUser:   makeDeleteUserEndpoint(s),
+		UpdateUser:   makeUpdateUserEndpoint(s),
+		Authenticate: makeAuthenticateEndpoint(s),
 	}
 }
 
@@ -60,6 +62,17 @@ func makeUpdateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(ent.UpdateUserReq)
 		resp, err := s.UpdateUser(ctx, req)
+		if err != nil {
+			return resp, err
+		}
+		return resp, nil
+	}
+}
+
+func makeAuthenticateEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ent.AuthenticateReq)
+		resp, err := s.AuthenticateUser(ctx, req)
 		if err != nil {
 			return resp, err
 		}

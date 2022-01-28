@@ -1,14 +1,14 @@
 package entities
 
 type GetUserResp struct {
-	Id          string
-	Name        string
-	Age         int64
-	Nationality string
-	Job         string
-	Created     string
-	Email       string
-	Error       Status
+	Id      string
+	Name    string
+	Age     int64
+	Country string
+	Job     string
+	Created string
+	Email   string
+	Error   Status
 }
 
 type CreateUserResp struct {
@@ -30,4 +30,9 @@ type UpdateUserResp struct {
 type Status struct {
 	Message string
 	Code    int32
+}
+
+type AuthenticateResp struct {
+	Token string
+	Error Status
 }

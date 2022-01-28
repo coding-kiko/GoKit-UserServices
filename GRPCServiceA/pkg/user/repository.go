@@ -37,7 +37,7 @@ func (repo *repo) GetUser(ctx context.Context, r ent.GetUserReq) (ent.GetUserRes
 	}
 	defer p.Close()
 
-	err = p.QueryRowContext(ctx, r.Id).Scan(&resp.Id, &resp.Name, &resp.Age, &resp.Email, &resp.Nationality, &resp.Job, &resp.Created)
+	err = p.QueryRowContext(ctx, r.Id).Scan(&resp.Id, &resp.Name, &resp.Age, &resp.Email, &resp.Country, &resp.Job, &resp.Created)
 	if err != nil {
 		if err == sql.ErrNoRows { // no rows matched -> no user found
 			level.Error(logger).Log("error", "User not found")
@@ -66,7 +66,7 @@ func (repo *repo) CreateUser(ctx context.Context, user ent.User) (ent.CreateUser
 	}
 	defer p.Close()
 
-	_, err = p.ExecContext(ctx, user.Id, user.Name, user.Age, user.Email, user.PwdHsh, user.Nationality, user.Job, user.Created)
+	_, err = p.ExecContext(ctx, user.Id, user.Name, user.Age, user.Email, user.PwdHsh, user.Country, user.Job, user.Created)
 	if err != nil {
 		level.Error(logger).Log("error", err.Error())
 		return ent.CreateUserResp{}, err
@@ -120,7 +120,7 @@ func (repo *repo) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.Upda
 	}
 	defer p.Close()
 
-	_, err = p.ExecContext(ctx, r.Name, r.Age, r.Email, r.Pwd, r.Nationality, r.Job, r.Email)
+	_, err = p.ExecContext(ctx, r.Name, r.Age, r.Email, r.Pwd, r.Country, r.Job, r.Email)
 	if err != nil {
 		level.Error(logger).Log("error", err.Error())
 		return ent.UpdateUserResp{}, err
@@ -128,4 +128,27 @@ func (repo *repo) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.Upda
 	return ent.UpdateUserResp{
 		Updated: utils.TimeNow(),
 	}, nil
+}
+
+func (repo *repo) AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (string, error) {
+	logger := log.With(repo.logger, "Repository method", "AuthenticateUser")
+	var pwdhsh string
+
+	p, err := repo.db.PrepareContext(ctx, utils.AuthenticateQuery)
+	if err != nil {
+		level.Error(logger).Log("error", err.Error())
+		return "", err
+	}
+	defer p.Close()
+
+	err = p.QueryRowContext(ctx, r.Email).Scan(&pwdhsh)
+	if err != nil {
+		if err == sql.ErrNoRows { // no rows matched -> no user found
+			level.Error(logger).Log("error", "User not found")
+			return "", erro.NewErrInvalidCredentials()
+		}
+		level.Error(logger).Log("error", err)
+		return "", err
+	}
+	return pwdhsh, nil
 }

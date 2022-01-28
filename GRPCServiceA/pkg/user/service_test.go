@@ -51,6 +51,15 @@ func (m *MockRepo) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.Upd
 	return result.(ent.UpdateUserResp), args.Error(1)
 }
 
+func (m *MockRepo) AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (string, error) {
+	args := m.Called(ctx, r)
+	result := args.Get(0)
+	if result == nil {
+		return "", args.Error(1)
+	}
+	return result.(string), args.Error(1)
+}
+
 // test service CreateUser
 func TestCreateUser(t *testing.T) {
 	var logger log.Logger
@@ -72,12 +81,12 @@ func TestCreateUser(t *testing.T) {
 		{
 			testName: "user created successfully",
 			request: ent.CreateUserReq{
-				Name:        "Francisco",
-				Age:         20,
-				Email:       "francisco.calixto@globant.com",
-				Pwd:         "12345678",
-				Nationality: "brazilian",
-				Job:         "programmer",
+				Name:    "Francisco",
+				Age:     20,
+				Email:   "francisco.calixto@globant.com",
+				Pwd:     "12345678",
+				Country: "brazilian",
+				Job:     "programmer",
 			},
 			response: func(req ent.CreateUserReq) (ent.CreateUserResp, error) {
 				return ent.CreateUserResp{
@@ -92,12 +101,12 @@ func TestCreateUser(t *testing.T) {
 		{
 			testName: "user already exists",
 			request: ent.CreateUserReq{
-				Name:        "Franco",
-				Age:         32,
-				Email:       "francisco.calixto@globant.com",
-				Pwd:         "12345678",
-				Nationality: "uruguayan",
-				Job:         "cooker",
+				Name:    "Franco",
+				Age:     32,
+				Email:   "francisco.calixto@globant.com",
+				Pwd:     "12345678",
+				Country: "uruguayan",
+				Job:     "cooker",
 			},
 			response: func(req ent.CreateUserReq) (ent.CreateUserResp, error) {
 				return ent.CreateUserResp{}, erro.NewErrAlreadyExists()
@@ -112,12 +121,12 @@ func TestCreateUser(t *testing.T) {
 		{
 			testName: "invalid arguments",
 			request: ent.CreateUserReq{
-				Name:        "Michael",
-				Age:         24,
-				Email:       "michael.scott@gmail.com",
-				Pwd:         "admin",
-				Nationality: "american",
-				Job:         "",
+				Name:    "Michael",
+				Age:     24,
+				Email:   "michael.scott@gmail.com",
+				Pwd:     "admin",
+				Country: "american",
+				Job:     "",
 			},
 			response: func(req ent.CreateUserReq) (ent.CreateUserResp, error) {
 				return ent.CreateUserResp{}, erro.NewErrInvalidArguments()
@@ -163,13 +172,13 @@ func TestGetUser(t *testing.T) {
 	validID := utils.NewId()
 	date := utils.TimeNow()
 	validUser := ent.GetUserResp{
-		Name:        "Francisco",
-		Age:         20,
-		Email:       "francisco.calixto@globant.com",
-		Job:         "programmer",
-		Nationality: "brazilian",
-		Created:     date,
-		Id:          validID,
+		Name:    "Francisco",
+		Age:     20,
+		Email:   "francisco.calixto@globant.com",
+		Job:     "programmer",
+		Country: "brazilian",
+		Created: date,
+		Id:      validID,
 	}
 
 	testCases := []struct {
@@ -301,28 +310,28 @@ func TestUpdateUser(t *testing.T) {
 	}
 
 	validUpdateReq := ent.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "12345678",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "12345678",
+		Country: "brazilian",
+		Job:     "programmer",
 	}
 	invalidUpdateReq := ent.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "12345678",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "12345678",
+		Country: "brazilian",
+		Job:     "programmer",
 	}
 	invalidArgsUpdateReq := ent.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "",
-		Pwd:         "12345678",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "",
+		Pwd:     "12345678",
+		Country: "brazilian",
+		Job:     "programmer",
 	}
 
 	testCases := []struct {

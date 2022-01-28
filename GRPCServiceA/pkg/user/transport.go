@@ -6,38 +6,51 @@ import (
 	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
 	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
 	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
+	"github.com/go-kit/kit/auth/jwt"
 	gt "github.com/go-kit/kit/transport/grpc"
 )
 
 type gRPCServer struct {
-	getUser    gt.Handler
-	createUser gt.Handler
-	deleteUser gt.Handler
-	updateUser gt.Handler
+	getUser      gt.Handler
+	createUser   gt.Handler
+	deleteUser   gt.Handler
+	updateUser   gt.Handler
+	authenticate gt.Handler
 	proto.UnimplementedUserServicesServer
 }
 
 func NewGRPCServer(endpoints Endpoints) proto.UserServicesServer {
+	options := []gt.ServerOption{}
+
 	return &gRPCServer{
 		getUser: gt.NewServer(
 			endpoints.GetUser,
 			decodeGetUserReq,
 			encodeGetUserResp,
+			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
 		),
 		createUser: gt.NewServer(
 			endpoints.CreateUser,
 			decodeCreateUserReq,
 			encodeCreateUserResp,
+			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
 		),
 		deleteUser: gt.NewServer(
 			endpoints.DeleteUser,
 			decodeDeleteUserReq,
 			encodeDeleteUserResp,
+			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
 		),
 		updateUser: gt.NewServer(
 			endpoints.UpdateUser,
 			decodeUpdateUserReq,
 			encodeUpdateUserResp,
+			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
+		),
+		authenticate: gt.NewServer(
+			endpoints.Authenticate,
+			decodeAuthenticateReq,
+			encodeAuthenticateResp,
 		),
 	}
 }
@@ -68,14 +81,14 @@ func encodeGetUserResp(ctx context.Context, response interface{}) (interface{}, 
 		}, nil
 	}
 	return &proto.GetUserResp{
-		Id:          resp.Id,
-		Name:        resp.Name,
-		Job:         resp.Job,
-		Nationality: resp.Nationality,
-		Created:     resp.Created,
-		Age:         resp.Age,
-		Email:       resp.Email,
-		Error:       &proto.Status{Code: 0, Message: "ok"},
+		Id:      resp.Id,
+		Name:    resp.Name,
+		Job:     resp.Job,
+		Country: resp.Country,
+		Created: resp.Created,
+		Age:     resp.Age,
+		Email:   resp.Email,
+		Error:   &proto.Status{Code: 0, Message: "ok"},
 	}, nil
 }
 
@@ -93,12 +106,12 @@ func (s *gRPCServer) CreateUser(ctx context.Context, req *proto.CreateUserReq) (
 func decodeCreateUserReq(ctx context.Context, request interface{}) (interface{}, error) {
 	req := request.(*proto.CreateUserReq)
 	return ent.CreateUserReq{
-		Name:        req.Name,
-		Age:         req.Age,
-		Job:         req.Job,
-		Nationality: req.Nationality,
-		Pwd:         req.Pwd,
-		Email:       req.Email,
+		Name:    req.Name,
+		Age:     req.Age,
+		Job:     req.Job,
+		Country: req.Country,
+		Pwd:     req.Pwd,
+		Email:   req.Email,
 	}, nil
 }
 
@@ -161,12 +174,12 @@ func (s *gRPCServer) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) (
 func decodeUpdateUserReq(ctx context.Context, request interface{}) (interface{}, error) {
 	req := request.(*proto.UpdateUserReq)
 	return ent.UpdateUserReq{
-		Name:        req.Name,
-		Age:         req.Age,
-		Job:         req.Job,
-		Nationality: req.Nationality,
-		Pwd:         req.Pwd,
-		Email:       req.Email,
+		Name:    req.Name,
+		Age:     req.Age,
+		Job:     req.Job,
+		Country: req.Country,
+		Pwd:     req.Pwd,
+		Email:   req.Email,
 	}, nil
 }
 
@@ -181,5 +194,38 @@ func encodeUpdateUserResp(ctx context.Context, response interface{}) (interface{
 	return &proto.UpdateUserResp{
 		Updated: resp.Updated,
 		Error:   &proto.Status{Code: 0, Message: "ok"},
+	}, nil
+}
+
+func (s *gRPCServer) Authenticate(ctx context.Context, req *proto.AuthenticateReq) (*proto.AuthenticateResp, error) {
+	_, resp, err := s.authenticate.ServeGRPC(ctx, req)
+	if err != nil {
+		status := erro.ErrToGRPCcode(err)
+		resp = &proto.AuthenticateResp{Error: status}
+		return resp.(*proto.AuthenticateResp), nil
+	}
+	return resp.(*proto.AuthenticateResp), nil
+}
+
+// decode authenticate request from outside to endpoints
+func decodeAuthenticateReq(ctx context.Context, request interface{}) (interface{}, error) {
+	req := request.(*proto.AuthenticateReq)
+	return ent.AuthenticateReq{
+		Pwd:   req.Pwd,
+		Email: req.Email,
+	}, nil
+}
+
+// Encode authenticate response from endpoints to the outside
+func encodeAuthenticateResp(ctx context.Context, response interface{}) (interface{}, error) {
+	resp, ok := response.(ent.AuthenticateResp)
+	if !ok { // in case of error
+		return &proto.AuthenticateResp{
+			Error: &proto.Status{},
+		}, nil
+	}
+	return &proto.AuthenticateResp{
+		Token: resp.Token,
+		Error: &proto.Status{Code: 0, Message: "ok"},
 	}, nil
 }
