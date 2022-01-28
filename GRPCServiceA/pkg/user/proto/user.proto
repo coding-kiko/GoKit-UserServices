@@ -10,6 +10,7 @@ service UserServices {
     rpc CreateUser(CreateUserReq) returns (CreateUserResp) {}
     rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {}
     rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {}
+    rpc Authenticate(AuthenticateReq) returns (AuthenticateResp) {}
     // other methods to come...
 }
 
@@ -21,7 +22,7 @@ message GetUserResp {
     string id = 1;
     string name = 2;
     int64 age = 3;
-    string nationality = 4;
+    string country = 4;
     string job = 5;
     string created = 6;
     string email = 7;
@@ -32,7 +33,7 @@ message CreateUserReq {
     string name = 1;
     int64 age = 2;
     string pwd = 3;
-    string nationality = 4;
+    string country = 4;
     string job = 5;
     string email = 6;
 }
@@ -61,12 +62,22 @@ message UpdateUserReq {
     string name = 1;
     int64 age = 2;
     string pwd = 3;
-    string nationality = 4;
+    string country = 4;
     string job = 5;
     string email = 6;
 }
 
 message UpdateUserResp {
     string updated = 1;
+    Status error = 2;
+}
+
+message AuthenticateReq {
+    string pwd = 1;
+    string email = 2;
+}
+
+message AuthenticateResp {
+    string token = 1;
     Status error = 2;
 }

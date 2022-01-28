@@ -66,14 +66,23 @@ func (m *MockService) UpdateUser(ctx context.Context, r ent.UpdateUserReq) (ent.
 	return result.(ent.UpdateUserResp), args.Error(1)
 }
 
+func (m *MockService) AuthenticateUser(ctx context.Context, r ent.AuthenticateReq) (ent.AuthenticateResp, error) {
+	args := m.Called(ctx, r)
+	result := args.Get(0)
+	if result == nil {
+		return ent.AuthenticateResp{}, args.Error(1)
+	}
+	return result.(ent.AuthenticateResp), args.Error(1)
+}
+
 var validUser = ent.GetUserResp{
-	Id:          validID,
-	Name:        "Francisco",
-	Age:         20,
-	Nationality: "brazilian",
-	Job:         "programmer",
-	Email:       "francisco.calixto@globant.com",
-	Created:     utils.TimeNow(),
+	Id:      validID,
+	Name:    "Francisco",
+	Age:     20,
+	Country: "brazilian",
+	Job:     "programmer",
+	Email:   "francisco.calixto@globant.com",
+	Created: utils.TimeNow(),
 }
 
 func TestGetUserSuccess(t *testing.T) {
@@ -170,24 +179,24 @@ func TestCreateUserSuccess(t *testing.T) {
 	defer conn.Close()
 	mockSvc.AssertExpectations(t)
 	mockSvc.On("CreateUser", mock.Anything, ent.CreateUserReq{
-		Name:        "Francisco",
-		Age:         20,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "12345678",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     20,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "12345678",
+		Country: "brazilian",
+		Job:     "programmer",
 	}).Return(ent.CreateUserResp{
 		Id:      validID,
 		Created: utils.TimeNow()}, nil)
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.CreateUser(ctx, &proto.CreateUserReq{
-		Name:        "Francisco",
-		Age:         20,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "12345678",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     20,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "12345678",
+		Country: "brazilian",
+		Job:     "programmer",
 	})
 
 	// Test response
@@ -221,22 +230,22 @@ func TestCreateUserFail(t *testing.T) {
 	defer conn.Close()
 	mockSvc.AssertExpectations(t)
 	mockSvc.On("CreateUser", mock.Anything, ent.CreateUserReq{
-		Name:        "Franco",
-		Age:         20,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "87654321",
-		Nationality: "uruguayan",
-		Job:         "cooker",
+		Name:    "Franco",
+		Age:     20,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "87654321",
+		Country: "uruguayan",
+		Job:     "cooker",
 	}).Return(ent.CreateUserResp{}, erro.NewErrAlreadyExists())
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.CreateUser(ctx, &proto.CreateUserReq{
-		Name:        "Franco",
-		Age:         20,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "87654321",
-		Nationality: "uruguayan",
-		Job:         "cooker",
+		Name:    "Franco",
+		Age:     20,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "87654321",
+		Country: "uruguayan",
+		Job:     "cooker",
 	})
 
 	// Test response
@@ -270,22 +279,22 @@ func TestCreateUserInvalidArguments(t *testing.T) {
 	defer conn.Close()
 	mockSvc.AssertExpectations(t)
 	mockSvc.On("CreateUser", mock.Anything, ent.CreateUserReq{
-		Name:        "Franco",
-		Age:         20,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "87654321",
-		Nationality: "",
-		Job:         "cooker",
+		Name:    "Franco",
+		Age:     20,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "87654321",
+		Country: "",
+		Job:     "cooker",
 	}).Return(ent.CreateUserResp{}, erro.NewErrInvalidArguments())
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.CreateUser(ctx, &proto.CreateUserReq{
-		Name:        "Franco",
-		Age:         20,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "87654321",
-		Nationality: "",
-		Job:         "cooker",
+		Name:    "Franco",
+		Age:     20,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "87654321",
+		Country: "",
+		Job:     "cooker",
 	})
 
 	// Test response
@@ -385,12 +394,12 @@ func TestUpdateUserSuccess(t *testing.T) {
 	}()
 
 	validUpdateReq := ent.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         utils.HashPwd("12345678"),
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     utils.HashPwd("12345678"),
+		Country: "brazilian",
+		Job:     "programmer",
 	}
 
 	// Setup the client
@@ -405,12 +414,12 @@ func TestUpdateUserSuccess(t *testing.T) {
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.UpdateUser(ctx, &proto.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         utils.HashPwd("12345678"),
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     utils.HashPwd("12345678"),
+		Country: "brazilian",
+		Job:     "programmer",
 	})
 
 	// Test response
@@ -436,12 +445,12 @@ func TestUpdateUserInvalidArgs(t *testing.T) {
 	}()
 
 	invalidUpdateReq := ent.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "",
+		Country: "brazilian",
+		Job:     "programmer",
 	}
 
 	// Setup the client
@@ -456,12 +465,12 @@ func TestUpdateUserInvalidArgs(t *testing.T) {
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.UpdateUser(ctx, &proto.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "",
+		Country: "brazilian",
+		Job:     "programmer",
 	})
 
 	// Test response
@@ -487,12 +496,12 @@ func TestUpdateUserNotFound(t *testing.T) {
 	}()
 
 	invalidUpdateReq := ent.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "",
+		Country: "brazilian",
+		Job:     "programmer",
 	}
 
 	// Setup the client
@@ -507,12 +516,63 @@ func TestUpdateUserNotFound(t *testing.T) {
 
 	client := proto.NewUserServicesClient(conn)
 	user, _ := client.UpdateUser(ctx, &proto.UpdateUserReq{
-		Name:        "Francisco",
-		Age:         21,
-		Email:       "francisco.calixto@globant.com",
-		Pwd:         "",
-		Nationality: "brazilian",
-		Job:         "programmer",
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "",
+		Country: "brazilian",
+		Job:     "programmer",
+	})
+
+	// Test response
+	assert.Equal(t, user.Error.Code, int32(5))
+	assert.Equal(t, user.Error.Message, "user not found")
+}
+
+func TestAuthenticateNotFound(t *testing.T) {
+	lis = bufconn.Listen(bufSize)
+	// create a gRPC server object (like in main.go)
+	mockSvc := new(MockService)
+	epts := MakeEndpoints(mockSvc)
+	grpcServer := NewGRPCServer(epts)
+	baseServer := grpc.NewServer()
+
+	// Register before starting the service.
+	proto.RegisterUserServicesServer(baseServer, grpcServer)
+
+	go func() {
+		if err := baseServer.Serve(lis); err != nil {
+			log.Fatalf("Server exited with error: %v", err)
+		}
+	}()
+
+	invalidUpdateReq := ent.UpdateUserReq{
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "",
+		Country: "brazilian",
+		Job:     "programmer",
+	}
+
+	// Setup the client
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(BufDialer(lis)), grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("Failed to dial bufnet: %v", err)
+	}
+	defer conn.Close()
+	mockSvc.AssertExpectations(t)
+	mockSvc.On("UpdateUser", mock.Anything, invalidUpdateReq).Return(ent.UpdateUserResp{}, erro.NewErrUserNotFound())
+
+	client := proto.NewUserServicesClient(conn)
+	user, _ := client.UpdateUser(ctx, &proto.UpdateUserReq{
+		Name:    "Francisco",
+		Age:     21,
+		Email:   "francisco.calixto@globant.com",
+		Pwd:     "",
+		Country: "brazilian",
+		Job:     "programmer",
 	})
 
 	// Test response

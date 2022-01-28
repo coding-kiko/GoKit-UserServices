@@ -54,6 +54,18 @@ func NewErrInvalidArguments() *ErrInvalidArguments {
 	return &ErrInvalidArguments{Err: errors.New("invalid argument(s)")}
 }
 
+type ErrInvalidCredentials struct {
+	Err error
+}
+
+func (e *ErrInvalidCredentials) Error() string {
+	return fmt.Sprintf("%v", e.Err)
+}
+
+func NewErrInvalidCredentials() *ErrInvalidCredentials {
+	return &ErrInvalidCredentials{Err: errors.New("invalid credential(s)")}
+}
+
 // Receives a grpc code, returns the corresponding custom error
 // Used in http service - repository layer
 func ErrFromGRPCcode(code int32) error {
@@ -65,6 +77,8 @@ func ErrFromGRPCcode(code int32) error {
 		err = NewErrAlreadyExists()
 	case 3:
 		err = NewErrInvalidArguments()
+	case 7:
+		err = NewErrInvalidCredentials()
 	default:
 		err = NewErrUnkown()
 	}
@@ -81,6 +95,8 @@ func ErrToHTTPStatus(err error) int {
 		return http.StatusConflict
 	case *ErrInvalidArguments:
 		return http.StatusBadRequest
+	case *ErrInvalidCredentials:
+		return http.StatusUnprocessableEntity
 	default:
 		return http.StatusInternalServerError
 	}

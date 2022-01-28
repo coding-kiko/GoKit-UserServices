@@ -5,12 +5,13 @@ import (
 )
 
 const (
-	GetQueryByEmail string = "SELECT id, name, age, email, nationality, job, created FROM Users WHERE email=?"
-	GetQueryById    string = "SELECT id, name, age, email, nationality, job, created FROM Users WHERE id=?"
-	CreateQuery     string = "INSERT INTO Users (id, name, age, email, pwd, nationality, job, created) VALUES (?,?,?,?,?,?,?,?)"
-	DeleteById      string = "DELETE FROM Users WHERE id=?"
-	DeleteByEmail   string = "DELETE FROM Users WHERE email=?"
-	UpdateQuery     string = "UPDATE Users SET name=?, age=?, email=?, pwd=?, nationality=?, job=? where email=?"
+	GetQueryByEmail   string = "SELECT id, name, age, email, country, job, created FROM Users WHERE email=?"
+	GetQueryById      string = "SELECT id, name, age, email, country, job, created FROM Users WHERE id=?"
+	CreateQuery       string = "INSERT INTO Users (id, name, age, email, pwd, country, job, created) VALUES (?,?,?,?,?,?,?,?)"
+	DeleteById        string = "DELETE FROM Users WHERE id=?"
+	DeleteByEmail     string = "DELETE FROM Users WHERE email=?"
+	UpdateQuery       string = "UPDATE Users SET name=?, age=?, email=?, pwd=?, country=?, job=? where email=?"
+	AuthenticateQuery string = "SELECT pwd FROM Users WHERE email=?"
 )
 
 func GetQuery(s string) string {

@@ -5,22 +5,27 @@ type GetUserReq struct {
 }
 
 type CreateUserReq struct {
-	Pwd         string
-	Name        string
-	Age         int64
-	Nationality string
-	Job         string
-	Email       string
+	Pwd     string
+	Name    string
+	Age     int64
+	Country string
+	Job     string
+	Email   string
 }
 type DeleteUserReq struct {
 	Id string
 }
 
 type UpdateUserReq struct {
-	Pwd         string
-	Name        string
-	Age         int64
-	Nationality string
-	Job         string
-	Email       string
+	Pwd     string
+	Name    string
+	Age     int64
+	Country string
+	Job     string
+	Email   string
+}
+
+type AuthenticateReq struct {
+	Pwd   string
+	Email string
 }

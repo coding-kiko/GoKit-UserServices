@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	GetUserRoute    = "/User/{Id}"
-	CreateUserRoute = "/User"
-	DeleteUserRoute = "/User/{Id}"
-	UpdateUserRoute = "/User"
+	GetUserRoute      = "/User/{Id}"
+	CreateUserRoute   = "/User"
+	DeleteUserRoute   = "/User/{Id}"
+	UpdateUserRoute   = "/User"
+	AuthenticateRoute = "/Authenticate"
 )
 
 func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
@@ -62,6 +63,15 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 			options...,
 		),
 	)
+	// Authenticate method handler
+	r.Methods("POST").Path(AuthenticateRoute).Handler(
+		kitHttp.NewServer(
+			endpoints.Authenticate,
+			decodeAuthenticateUser,
+			encodeStatusOKResp,
+			options...,
+		),
+	)
 	return r
 }
 
@@ -69,6 +79,13 @@ func NewMuxApi(endpoints Endpoints, logger log.Logger) http.Handler {
 func encodeStatusOKResp(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
+	return json.NewEncoder(w).Encode(response)
+}
+
+// Encodes to json to give a 201 created response
+func encodeCreateResp(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusCreated)
 	return json.NewEncoder(w).Encode(response)
 }
 
@@ -90,13 +107,6 @@ func decodeDeleteUser(ctx context.Context, r *http.Request) (interface{}, error)
 	return req, nil
 }
 
-// Encodes to json to give a 201 created response
-func encodeCreateResp(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
-	return json.NewEncoder(w).Encode(response)
-}
-
 // decode request entering the http server
 func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req ent.CreateUserReq
@@ -110,6 +120,16 @@ func decodeCreateUser(ctx context.Context, r *http.Request) (interface{}, error)
 // decode request entering the http server
 func decodeUpdateUser(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req ent.UpdateUserReq
+	// translating json to my CreateUserReq struct
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+// decode request entering the http server
+func decodeAuthenticateUser(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req ent.AuthenticateReq
 	// translating json to my CreateUserReq struct
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err

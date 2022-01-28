@@ -55,6 +55,18 @@ func NewErrInvalidArguments() *ErrInvalidArguments {
 	return &ErrInvalidArguments{Err: errors.New("invalid argument(s)")}
 }
 
+type ErrInvalidCredentials struct {
+	Err error
+}
+
+func (e *ErrInvalidCredentials) Error() string {
+	return fmt.Sprintf("%v", e.Err)
+}
+
+func NewErrInvalidCredentials() *ErrInvalidCredentials {
+	return &ErrInvalidCredentials{Err: errors.New("invalid credential(s)")}
+}
+
 // Receives a custom error, returns the corresponding proto status struct filled
 // Used in grpc service - transport layer
 func ErrToGRPCcode(e error) *proto.Status {
@@ -68,6 +80,9 @@ func ErrToGRPCcode(e error) *proto.Status {
 		status.Message = e.Error()
 	case *ErrInvalidArguments:
 		status.Code = 3
+		status.Message = e.Error()
+	case *ErrInvalidCredentials:
+		status.Code = 7
 		status.Message = e.Error()
 	default:
 		status.Code = 2
