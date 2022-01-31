@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"flag"
 	"net"
+	"net/http"
 	"os"
 
 	_ "gopkg.in/go-sql-driver/mysql.v1"
@@ -11,13 +14,16 @@ import (
 	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // this is temporary while I dont implement env vars
-const (
-	dataSourceName = "root:@(127.0.0.1:3306)/Users"
-	grpcPort       = ":50000"
+var (
+	dataSourceName     = "root:@(127.0.0.1:3306)/Users"
+	grpcPort           = ":50000"
+	grpcServerEndpoint = "localhost:50000"
 )
 
 func main() {
@@ -26,6 +32,7 @@ func main() {
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	logger = log.With(logger, "caller", log.DefaultCaller)
 	logger = log.With(logger, "service", "gRPCServiceA")
+	ctx := context.Background()
 
 	var db *sql.DB
 	db, err := sql.Open("mysql", dataSourceName)
@@ -44,8 +51,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	flag.Parse()
+
 	baseServer := grpc.NewServer()
 	proto.RegisterUserServicesServer(baseServer, grpcServer)
 	level.Info(logger).Log("msg", "Server started")
-	baseServer.Serve(grpcListener)
+	go baseServer.Serve(grpcListener)
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	err = proto.RegisterUserServicesHandlerFromEndpoint(ctx, mux, grpcServerEndpoint, opts)
+	if err != nil {
+		level.Error(logger).Log("exit", err)
+		os.Exit(-1)
+	}
+	http.Handle("/", mux)
+	http.ListenAndServe(":8000", nil)
 }
