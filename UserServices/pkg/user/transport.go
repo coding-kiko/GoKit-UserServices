@@ -3,9 +3,9 @@ package user
 import (
 	"context"
 
-	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
-	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
-	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
+	ent "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/entities"
+	erro "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/errors"
+	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user/proto"
 	"github.com/go-kit/kit/auth/jwt"
 	gt "github.com/go-kit/kit/transport/grpc"
 )

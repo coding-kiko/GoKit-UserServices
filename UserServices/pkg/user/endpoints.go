@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
+	ent "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/entities"
 	"github.com/go-kit/kit/endpoint"
 )
 

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
+	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user/proto"
 )
 
 type ErrUserNotFound struct {
