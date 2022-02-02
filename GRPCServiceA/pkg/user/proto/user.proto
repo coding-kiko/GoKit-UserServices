@@ -4,14 +4,38 @@ option go_package = "fCalixto-Gb/Final-Project/GRPCServiceA/proto";
 
 package proto;
 
+import "google/api/annotations.proto";
+
 // grpc service interface definition
 service UserServices {
-    rpc GetUser(GetUserReq) returns (GetUserResp) {}
-    rpc CreateUser(CreateUserReq) returns (CreateUserResp) {}
-    rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {}
-    rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {}
-    rpc Authenticate(AuthenticateReq) returns (AuthenticateResp) {}
-    // other methods to come...
+    rpc GetUser(GetUserReq) returns (GetUserResp) {
+        option (google.api.http) = {
+            get: "/User/{id}"
+        };
+    }
+    rpc CreateUser(CreateUserReq) returns (CreateUserResp) {
+        option (google.api.http) = {
+            post: "/User"
+            body: "*"
+        };
+    }
+    rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {
+        option (google.api.http) = {
+            delete: "/User/{id}"
+        };
+    }
+    rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {
+        option (google.api.http) = {
+            put: "/User"
+            body: "*"
+        };
+    }
+    rpc Authenticate(AuthenticateReq) returns (AuthenticateResp) {
+        option (google.api.http) = {
+            post: "/Authenticate"
+            body: "*"
+        };
+    }
 }
 
 message GetUserReq {
