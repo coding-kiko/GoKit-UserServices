@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"flag"
 	"net"
 	"net/http"
 	"os"
@@ -40,6 +39,7 @@ func main() {
 		panic(err.Error())
 	}
 	defer db.Close()
+
 	repo := user.NewRepo(logger, db)
 	svc := user.NewService(logger, repo)
 	epts := user.MakeEndpoints(svc)
@@ -50,8 +50,6 @@ func main() {
 		logger.Log("during", "Listen", "err", err)
 		os.Exit(1)
 	}
-
-	flag.Parse()
 
 	baseServer := grpc.NewServer()
 	proto.RegisterUserServicesServer(baseServer, grpcServer)
