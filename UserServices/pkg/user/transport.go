@@ -6,7 +6,6 @@ import (
 	ent "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/entities"
 	erro "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/errors"
 	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user/proto"
-	"github.com/go-kit/kit/auth/jwt"
 	gt "github.com/go-kit/kit/transport/grpc"
 )
 
@@ -20,32 +19,26 @@ type gRPCServer struct {
 }
 
 func NewGRPCServer(endpoints Endpoints) proto.UserServicesServer {
-	options := []gt.ServerOption{}
-
 	return &gRPCServer{
 		getUser: gt.NewServer(
 			endpoints.GetUser,
 			decodeGetUserReq,
 			encodeGetUserResp,
-			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
 		),
 		createUser: gt.NewServer(
 			endpoints.CreateUser,
 			decodeCreateUserReq,
 			encodeCreateUserResp,
-			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
 		),
 		deleteUser: gt.NewServer(
 			endpoints.DeleteUser,
 			decodeDeleteUserReq,
 			encodeDeleteUserResp,
-			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
 		),
 		updateUser: gt.NewServer(
 			endpoints.UpdateUser,
 			decodeUpdateUserReq,
 			encodeUpdateUserResp,
-			append(options, gt.ServerBefore(jwt.GRPCToContext()))...,
 		),
 		authenticate: gt.NewServer(
 			endpoints.Authenticate,

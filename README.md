@@ -24,7 +24,7 @@ The following methods will be called by a command line tool **curl**, but it cou
 |Authenticate| POST | /Authenticate|
 
 \
-Let's CREATE a new user:
+Let's CREATE a new user:\
 **Notice: all of the fields are required, otherwise the handling throws an error**
    
 
@@ -47,7 +47,7 @@ Let's GET an user from the database:
        "name" : "Cristiano Ronaldo"
     }
 \
-Let's UPDATE our user:
+Let's UPDATE our user:\
 **Notice: all of the fields are required, otherwise the handling throws an error**
 
     curl -X PUT localhost:8000/User -H 'Content-Type:application/json' -d '{"name":"Cristiano Ronaldo", "age": 37,"country":"pt", "job":"Football Manager", "pwd":"12345678", "email": "cristiano.ronaldo@manudt.com"}'
@@ -82,7 +82,7 @@ This is a quick guide to some of the errors you may encounter while making use o
 |Invalid credential(s)| 422 | 7|
 
 \
-Examples:
+Examples:\
 You missed a field when creating a new user:
 
     curl -X POST localhost:8000/User -H 'Content-Type:application/json' -d '{"name":"Cristiano Ronaldo", "age": 36,"country":"pt", "job":"Footballer", "pwd":"12345678"}'

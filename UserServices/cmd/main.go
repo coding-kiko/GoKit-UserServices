@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"flag"
 	"net"
 	"net/http"
 	"os"
@@ -18,11 +19,13 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// this is temporary while I dont implement env vars
 var (
-	dataSourceName     = "root:@(127.0.0.1:3306)/Users"
-	grpcPort           = ":50000"
-	grpcServerEndpoint = "localhost:50000"
+	grpcServerEndpoint = flag.String("grpcServerEndpoint", "localhost:50000", "endpoint for grpc connection client <-> server")
+	httpListen         = flag.String("httpAddr", "localhost:8000", "http listener address")
+	dbCredentials      = flag.String("dbCredentials", "root:", "username and password to generate mysql connection")
+	dbAddr             = flag.String("dbAddr", "localhost:3306", "mysql address")
+	database           = flag.String("database", "Users", "database name")
+	dataSourceName     = *dbCredentials + "@(" + *dbAddr + ")/" + *database
 )
 
 func main() {
@@ -33,6 +36,9 @@ func main() {
 	logger = log.With(logger, "service", "gRPCServiceA")
 	ctx := context.Background()
 
+	flag.Parse()
+
+	// start db connection
 	var db *sql.DB
 	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
@@ -40,29 +46,32 @@ func main() {
 	}
 	defer db.Close()
 
+	// initialize layers
 	repo := user.NewRepo(logger, db)
 	svc := user.NewService(logger, repo)
 	epts := user.MakeEndpoints(svc)
 	grpcServer := user.NewGRPCServer(epts)
 
-	grpcListener, err := net.Listen("tcp", grpcPort)
+	grpcListener, err := net.Listen("tcp", *grpcServerEndpoint)
 	if err != nil {
 		logger.Log("during", "Listen", "err", err)
 		os.Exit(1)
 	}
 
+	// grpc server start
 	baseServer := grpc.NewServer()
 	proto.RegisterUserServicesServer(baseServer, grpcServer)
 	level.Info(logger).Log("msg", "Server started")
 	go baseServer.Serve(grpcListener)
 
+	// mux listener - acts as grpc client
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err = proto.RegisterUserServicesHandlerFromEndpoint(ctx, mux, grpcServerEndpoint, opts)
+	err = proto.RegisterUserServicesHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, opts)
 	if err != nil {
 		level.Error(logger).Log("exit", err)
 		os.Exit(-1)
 	}
 	http.Handle("/", mux)
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(*httpListen, nil)
 }
