@@ -75,8 +75,9 @@ This is a quick guide to some of the errors you may encounter while making use o
 |User not found         |404           |5            |
 |   Unkown error       |500            |2          |
 |User already exists          |409|6 |
-|Invalid argument(s) |  400 |3
-|Invalid credential(s)| 422 | 7
+|Invalid argument(s) |  400 |3|
+|Invalid credential(s)| 422 | 7|
+
 \
 Examples:
 You missed a field when creating a new user:
