@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 
 	_ "gopkg.in/go-sql-driver/mysql.v1"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/runtime/protoiface"
 )
 
 var (
@@ -65,7 +67,9 @@ func main() {
 	go baseServer.Serve(grpcListener)
 
 	// mux listener - acts as grpc client
-	mux := runtime.NewServeMux()
+	mux := runtime.NewServeMux(
+		runtime.WithForwardResponseOption(httpResponseModifier),
+	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	err = proto.RegisterUserServicesHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, opts)
 	if err != nil {
@@ -74,4 +78,25 @@ func main() {
 	}
 	http.Handle("/", mux)
 	http.ListenAndServe(*httpListen, nil)
+}
+
+func httpResponseModifier(ctx context.Context, w http.ResponseWriter, _ protoiface.MessageV1) error {
+	md, ok := runtime.ServerMetadataFromContext(ctx)
+	if !ok {
+		return nil
+	}
+
+	// set http status code
+	if vals := md.HeaderMD.Get("x-http-code"); len(vals) > 0 {
+		code, err := strconv.Atoi(vals[0])
+		if err != nil {
+			return err
+		}
+		// delete the headers to not expose any grpc-metadata in http response
+		delete(md.HeaderMD, "x-http-code")
+		delete(w.Header(), "Grpc-Metadata-X-Http-Code")
+		w.WriteHeader(code)
+	}
+
+	return nil
 }

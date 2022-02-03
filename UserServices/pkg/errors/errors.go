@@ -69,23 +69,23 @@ func NewErrInvalidCredentials() *ErrInvalidCredentials {
 
 // Receives a custom error, returns the corresponding proto status struct filled
 // Used in grpc service - transport layer
-func ErrToGRPCcode(e error) *proto.Status {
+func ErrToHTTPcode(e error) *proto.Status {
 	var status proto.Status
 	switch e.(type) {
 	case *ErrUserNotFound:
-		status.Code = 5
+		status.Code = 404
 		status.Message = e.Error()
 	case *ErrAlreadyExists:
-		status.Code = 6
+		status.Code = 409
 		status.Message = e.Error()
 	case *ErrInvalidArguments:
-		status.Code = 3
+		status.Code = 400
 		status.Message = e.Error()
 	case *ErrInvalidCredentials:
-		status.Code = 7
+		status.Code = 422
 		status.Message = e.Error()
 	default:
-		status.Code = 2
+		status.Code = 500
 		status.Message = "unkown error"
 	}
 	return &status
