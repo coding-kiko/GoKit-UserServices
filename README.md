@@ -20,9 +20,7 @@ The following methods will be called by a command line tool **curl**, but it cou
 |DeleteUser          |DELETE|/User/{Id} **or** /User/{email} |
 |UpdateUser |  PUT |/User
 |Authenticate| POST | /Authenticate
-
-
-
+\
 Let's CREATE a new user:
 **Notice: all of the fields are required, otherwise the handling throws an error**
    
@@ -32,7 +30,7 @@ Let's CREATE a new user:
            "created" : "02-03-2022(10:04)",
            "id" : "64738e4a-b303-483c-84a0-8181cfa1a66c,
         }
-
+\
 Let's GET an user from the database:
 
     curl localhost:8000/User/cristiano.ronaldo@manudt.com 
@@ -45,7 +43,7 @@ Let's GET an user from the database:
        "job" : "Footballer",
        "name" : "Cristiano Ronaldo"
     }
-
+\
 Let's UPDATE our user:
 **Notice: all of the fields are required, otherwise the handling throws an error**
 
@@ -53,12 +51,14 @@ Let's UPDATE our user:
     {
        "updated" : "02-03-2022(10:09)"
     }
+ \
 Finally let's DELETE our user:
 
     curl -X DELETE localhost:8000/User/cristiano.ronaldo@manudt.com
     {
 	    "deleted":"02-03-2022(10:13)"
     }
+  \
 The AUTHENTICATE method is not fully implemented yet, but it does generate a perfectly valid token, that the client of the Api would need to consequently add to the request header in order to achieve any of the operations shown above.
 A demo of what it looks like:
 
@@ -77,7 +77,7 @@ This is a quick guide to some of the errors you may encounter while making use o
 |User already exists          |409|6 |
 |Invalid argument(s) |  400 |3
 |Invalid credential(s)| 422 | 7
-
+\
 Examples:
 You missed a field when creating a new user:
 
@@ -88,6 +88,7 @@ You missed a field when creating a new user:
 		    "message": "invalid argument(s)"
 	    }
 	}
+\
 You tried to create a user with an email that already exists in the database:
 
     curl -X POST localhost:8000/User -H 'Content-Type:application/json' -d '{"name":"Lionel Messi", "age": 35,"country":"ar", "job":"Footballer", "pwd":"12345678", "email": "cristiano.ronaldo@manudt.com"}'
@@ -97,6 +98,7 @@ You tried to create a user with an email that already exists in the database:
         		"message": "user already exists"
 	     }
     }
+\
 Getting a user that doesn't exists:
 
     curl localhost:8000/User/invalid-id
@@ -106,6 +108,7 @@ Getting a user that doesn't exists:
 		    "message": "user not found"
 	    }
 	}
+\
 Trying to authenticate with invalid credentials:
 
     curl -X POST localhost:8000/Authenticate -H 'Content-Type:application/json' -d '{"pwd":"wrong", "email": "invalid.email@invalid.com"}'
