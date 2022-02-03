@@ -16,5 +16,6 @@ require (
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/genproto v0.0.0-20220201184016-50beb8ab5c44
 	google.golang.org/grpc v1.44.0
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/go-sql-driver/mysql.v1 v1.4.1
 )

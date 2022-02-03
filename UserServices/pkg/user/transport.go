@@ -2,11 +2,14 @@ package user
 
 import (
 	"context"
+	"strconv"
 
 	ent "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/entities"
 	erro "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/errors"
 	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user/proto"
 	gt "github.com/go-kit/kit/transport/grpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type gRPCServer struct {
@@ -52,10 +55,12 @@ func NewGRPCServer(endpoints Endpoints) proto.UserServicesServer {
 func (s *gRPCServer) GetUser(ctx context.Context, req *proto.GetUserReq) (*proto.GetUserResp, error) {
 	_, resp, err := s.getUser.ServeGRPC(ctx, req)
 	if err != nil {
-		status := erro.ErrToGRPCcode(err)
+		status := erro.ErrToHTTPcode(err)
 		resp = &proto.GetUserResp{Error: status}
+		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", strconv.Itoa(int(status.Code))))
 		return resp.(*proto.GetUserResp), nil
 	}
+	_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "200"))
 	return resp.(*proto.GetUserResp), nil
 }
 
@@ -88,10 +93,12 @@ func encodeGetUserResp(ctx context.Context, response interface{}) (interface{}, 
 func (s *gRPCServer) CreateUser(ctx context.Context, req *proto.CreateUserReq) (*proto.CreateUserResp, error) {
 	_, resp, err := s.createUser.ServeGRPC(ctx, req)
 	if err != nil {
-		status := erro.ErrToGRPCcode(err)
+		status := erro.ErrToHTTPcode(err)
+		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", strconv.Itoa(int(status.Code))))
 		resp = &proto.CreateUserResp{Error: status}
 		return resp.(*proto.CreateUserResp), nil
 	}
+	_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201"))
 	return resp.(*proto.CreateUserResp), nil
 }
 
@@ -126,10 +133,12 @@ func encodeCreateUserResp(ctx context.Context, response interface{}) (interface{
 func (s *gRPCServer) DeleteUser(ctx context.Context, req *proto.DeleteUserReq) (*proto.DeleteUserResp, error) {
 	_, resp, err := s.deleteUser.ServeGRPC(ctx, req)
 	if err != nil {
-		status := erro.ErrToGRPCcode(err)
+		status := erro.ErrToHTTPcode(err)
+		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", strconv.Itoa(int(status.Code))))
 		resp = &proto.DeleteUserResp{Error: status}
 		return resp.(*proto.DeleteUserResp), nil
 	}
+	_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "200"))
 	return resp.(*proto.DeleteUserResp), nil
 }
 
@@ -156,10 +165,12 @@ func encodeDeleteUserResp(ctx context.Context, response interface{}) (interface{
 func (s *gRPCServer) UpdateUser(ctx context.Context, req *proto.UpdateUserReq) (*proto.UpdateUserResp, error) {
 	_, resp, err := s.updateUser.ServeGRPC(ctx, req)
 	if err != nil {
-		status := erro.ErrToGRPCcode(err)
+		status := erro.ErrToHTTPcode(err)
+		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", strconv.Itoa(int(status.Code))))
 		resp = &proto.UpdateUserResp{Error: status}
 		return resp.(*proto.UpdateUserResp), nil
 	}
+	_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "200"))
 	return resp.(*proto.UpdateUserResp), nil
 }
 
@@ -193,10 +204,12 @@ func encodeUpdateUserResp(ctx context.Context, response interface{}) (interface{
 func (s *gRPCServer) Authenticate(ctx context.Context, req *proto.AuthenticateReq) (*proto.AuthenticateResp, error) {
 	_, resp, err := s.authenticate.ServeGRPC(ctx, req)
 	if err != nil {
-		status := erro.ErrToGRPCcode(err)
+		status := erro.ErrToHTTPcode(err)
+		_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", strconv.Itoa(int(status.Code))))
 		resp = &proto.AuthenticateResp{Error: status}
 		return resp.(*proto.AuthenticateResp), nil
 	}
+	_ = grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "200"))
 	return resp.(*proto.AuthenticateResp), nil
 }
 
