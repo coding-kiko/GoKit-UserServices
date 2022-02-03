@@ -22,6 +22,7 @@ The following methods will be called by a command line tool **curl**, but it cou
 |Authenticate| POST | /Authenticate
 
 
+
 Let's CREATE a new user:
 **Notice: all of the fields are required, otherwise the handling throws an error**
    
