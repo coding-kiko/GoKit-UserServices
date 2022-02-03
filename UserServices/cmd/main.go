@@ -9,8 +9,8 @@ import (
 
 	_ "gopkg.in/go-sql-driver/mysql.v1"
 
-	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user"
-	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/user/proto"
+	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user"
+	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user/proto"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"

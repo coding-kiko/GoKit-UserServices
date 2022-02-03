@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	ent "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/entities"
-	erro "github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/errors"
-	"github.com/fCalixto-Gb/Final-Project/GRPCServiceA/pkg/utils"
+	ent "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/entities"
+	erro "github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/errors"
+	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/utils"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/stretchr/testify/assert"
