@@ -8,7 +8,7 @@ The architecture of the project follows along with the one that the [Go-Kit](htt
 GRPC is great, and even though it is a clear superior in terms of speed and other factors when compared to the ordinary HTTP, it still loses in one category: compatibility. So, in order to be able to expose my api to either of the protocols, I implemented [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) to work as a reverse proxy and be able to call my methods as if it was a RESTFUL Api.
 
 <div align="center">
-  <img alt="JPG" src="/readme/architecture.jpg" width="800" height="100" />
+  <img alt="JPG" src="UserServices/readme/architecture.jpg" width="800" height="100" />
 </div>
 
 # Methods
