@@ -20,8 +20,9 @@ The following methods will be called by a command line tool **curl**, but it cou
 |GetUser         |GET           |/User/{Id} **or** /User/{email}            |
 |CreateUser          |POST            |/User           |
 |DeleteUser          |DELETE|/User/{Id} **or** /User/{email} |
-|UpdateUser |  PUT |/User
-|Authenticate| POST | /Authenticate
+|UpdateUser |  PUT |/User|
+|Authenticate| POST | /Authenticate|
+
 \
 Let's CREATE a new user:
 **Notice: all of the fields are required, otherwise the handling throws an error**
