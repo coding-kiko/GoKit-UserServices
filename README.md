@@ -82,7 +82,7 @@ This is a quick guide to some of the errors you may encounter while making use o
 |Invalid credential(s)| 422 | 7|
 
 \
-Examples:
+Examples:\
 You missed a field when creating a new user:
 
     curl -X POST localhost:8000/User -H 'Content-Type:application/json' -d '{"name":"Cristiano Ronaldo", "age": 36,"country":"pt", "job":"Footballer", "pwd":"12345678"}'
