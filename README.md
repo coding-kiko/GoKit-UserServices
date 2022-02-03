@@ -7,7 +7,9 @@ The aim of this project was to create a simple micro-service using the Go-Kit to
 The architecture of the project follows along with the one that the [Go-Kit](https://gokit.io/) developers pictured as this abstract layered architecture, with the core GRPC service having a Transport, Endpoints and Service layer. The Transport layer exposes the methods using GRPC, the service layer takes care of the business logic, and the endpoints layer works as a powerful abstraction tool that wraps up requests and responses going in between the other two layers, and because of this the responsibilities and problems of each layer are truly and well separated.
 GRPC is great, and even though it is a clear superior in terms of speed and other factors when compared to the ordinary HTTP, it still loses in one category: compatibility. So, in order to be able to expose my api to either of the protocols, I implemented [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) to work as a reverse proxy and be able to call my methods as if it was a RESTFUL Api.
 
-
+<div align="center">
+  <img alt="JPG" src="/readme/architecture.jpg" width="800" height="100" />
+</div>
 
 # Methods
 The following methods will be called by a command line tool **curl**, but it could be perfectly achieved with any other advanced interface tool such as Postman.
