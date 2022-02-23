@@ -118,7 +118,7 @@ Trying to authenticate with invalid credentials:
     curl -X POST localhost:8000/Authenticate -H 'Content-Type:application/json' -d '{"pwd":"wrong", "email": "invalid.email@invalid.com"}'
     {
        "error" : {
-          "code" : 7,
+          "code" : 422,
           "message" : "invalid credential(s)"
        }
     }
