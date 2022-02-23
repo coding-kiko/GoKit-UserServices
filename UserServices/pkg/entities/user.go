@@ -1,7 +1,7 @@
 package entities
 
 type User struct {
-	Id      string
+	Id      string `bson:"_id"`
 	Age     int64
 	Name    string
 	Job     string

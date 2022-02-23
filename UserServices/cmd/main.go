@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	"flag"
+
 	"net"
 	"net/http"
 	"os"
 	"strconv"
 
-	_ "gopkg.in/go-sql-driver/mysql.v1"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user"
 	"github.com/coding-kiko/GoKit-UserServices/UserServices/pkg/user/proto"
@@ -22,12 +23,12 @@ import (
 )
 
 var (
-	grpcServerEndpoint = flag.String("grpcServerEndpoint", "localhost:50000", "endpoint for grpc connection client <-> server")
-	httpListen         = flag.String("httpAddr", "localhost:8000", "http listener address")
-	dbCredentials      = flag.String("dbCredentials", "root:", "username and password to generate mysql connection")
-	dbAddr             = flag.String("dbAddr", "localhost:3306", "mysql address")
-	database           = flag.String("database", "Users", "database name")
-	dataSourceName     = *dbCredentials + "@(" + *dbAddr + ")/" + *database
+	grpcServerEndpoint = "localhost:50000"
+	httpListen         = "localhost:8080"
+	// dbCredentials      = "root:root"
+	dbAddr   = "localhost:27017" // mongo is the container name
+	database = "Users"
+	applyURI = "mongodb://" + dbAddr
 )
 
 func main() {
@@ -38,15 +39,18 @@ func main() {
 	logger = log.With(logger, "service", "gRPCServiceA")
 	ctx := context.Background()
 
-	flag.Parse()
-
 	// start db connection
-	var db *sql.DB
-	db, err := sql.Open("mysql", dataSourceName)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(applyURI))
 	if err != nil {
+		logger.Log("during", "Listen", "err", err)
 		panic(err.Error())
 	}
-	defer db.Close()
+	// Ping to check if connection is completed
+	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		level.Info(logger).Log("error", "Unable to ping Mongodb")
+		os.Exit(1)
+	}
+	db := client.Database(database)
 
 	// initialize layers
 	repo := user.NewRepo(logger, db)
@@ -54,7 +58,7 @@ func main() {
 	epts := user.MakeEndpoints(svc)
 	grpcServer := user.NewGRPCServer(epts)
 
-	grpcListener, err := net.Listen("tcp", *grpcServerEndpoint)
+	grpcListener, err := net.Listen("tcp", grpcServerEndpoint)
 	if err != nil {
 		logger.Log("during", "Listen", "err", err)
 		os.Exit(1)
@@ -71,13 +75,14 @@ func main() {
 		runtime.WithForwardResponseOption(httpResponseModifier),
 	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err = proto.RegisterUserServicesHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, opts)
+	err = proto.RegisterUserServicesHandlerFromEndpoint(ctx, mux, grpcServerEndpoint, opts)
 	if err != nil {
 		level.Error(logger).Log("exit", err)
 		os.Exit(-1)
 	}
 	http.Handle("/", mux)
-	http.ListenAndServe(*httpListen, nil)
+	level.Info(logger).Log("msg", "started listening 8080")
+	http.ListenAndServe(httpListen, nil)
 }
 
 func httpResponseModifier(ctx context.Context, w http.ResponseWriter, _ protoiface.MessageV1) error {

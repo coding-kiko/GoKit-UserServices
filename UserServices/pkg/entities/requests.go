@@ -1,7 +1,7 @@
 package entities
 
 type GetUserReq struct {
-	Id string
+	Id string `bson:"_id"`
 }
 
 type CreateUserReq struct {
@@ -14,7 +14,7 @@ type CreateUserReq struct {
 }
 
 type DeleteUserReq struct {
-	Id string
+	Id string `bson:"_id"`
 }
 
 type UpdateUserReq struct {

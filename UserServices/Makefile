@@ -8,3 +8,6 @@ create:
 
 clean:
 	rm pkg/user/proto/*.go
+
+run:
+	go run cmd/main.go

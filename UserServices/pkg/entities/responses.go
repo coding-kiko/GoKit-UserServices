@@ -1,7 +1,7 @@
 package entities
 
 type GetUserResp struct {
-	Id      string
+	Id      string `bson:"_id"`
 	Name    string
 	Age     int64
 	Country string
@@ -12,7 +12,7 @@ type GetUserResp struct {
 }
 
 type CreateUserResp struct {
-	Id      string
+	Id      string `bson:"_id"`
 	Created string
 	Error   Status
 }
