@@ -1,5 +1,8 @@
 # About
 
+**This branch is the exact same as the main one but implemented with Mongodb, the database part of the diagram is inaccurate**
+**You can appreciate how go-kit's abstraction allowed be to touch only some functions without having to refactor the whole code and by only changing the repository layer and adding some helper functions I can change from mysql to mongodb**
+
 The aim of this project was to create a simple micro-service using the Go-Kit toolkit and with the help of other libraries in order to feel more confident with the language and apply some of my acquired knowledge in Go to this interesting project. The core idea is to expose some simple methods that have to do with the manipulation of 'Users' in a database. I learned some new concepts like GRPC, protocol buffers, Jwt, etc. However some of the things are not fully implemented and need some more work.
 
 
